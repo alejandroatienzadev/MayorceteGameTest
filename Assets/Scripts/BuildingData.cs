@@ -9,6 +9,8 @@ public class BuildingData : ScriptableObject
     public int woodCost;
     public int stoneCost;
 
+    public Vector2Int size;
+
     public float productionTime;
     //public ResourceType resourceProduced;
     public int productionAmount;

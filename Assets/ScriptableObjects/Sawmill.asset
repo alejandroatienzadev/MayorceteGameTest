@@ -16,6 +16,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   woodCost: 10
   stoneCost: 10
+  size: {x: 1, y: 1}
   productionTime: 5
   productionAmount: 4
   prefab: {fileID: 3855413177538579037, guid: 5bd4d2a0c48bce84aa1e1b31e458e597, type: 3}
