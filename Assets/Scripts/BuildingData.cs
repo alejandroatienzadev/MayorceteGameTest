@@ -15,5 +15,6 @@ public class BuildingData : ScriptableObject
     //public ResourceType resourceProduced;
     public int productionAmount;
     public GameObject prefab;
-    public GameObject previewPrefab;
+    public Color canBuildColor = Color.white;
+    public Color cantBuildColor = Color.red;
 }

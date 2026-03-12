@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour, IPlayerActions
 #region Inputs
     public void OnMove(InputAction.CallbackContext context)
     {
-        
+
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -50,6 +50,14 @@ public class PlayerController : MonoBehaviour, IPlayerActions
         {
             Debug.Log("Cancelado");
             BuildingManager.Instance.CancelBuild();
+        }
+    }
+
+    public void OnRotateBuilding(InputAction.CallbackContext contex)
+    {
+        if (contex.performed && BuildingManager.Instance.isBuildingMode)
+        {
+            BuildingManager.Instance.RotateBuilding();
         }
     }
 #endregion

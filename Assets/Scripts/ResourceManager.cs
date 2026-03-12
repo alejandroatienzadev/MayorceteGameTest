@@ -6,6 +6,7 @@ public class ResourceManager : MonoBehaviour
 {
     public float currentWood;
     public float currentStone;
+    public float currentGold;
 
     private static ResourceManager _instance;
     public static ResourceManager Instance => _instance;

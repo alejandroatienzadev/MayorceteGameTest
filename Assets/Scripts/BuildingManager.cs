@@ -1,19 +1,27 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class BuildingManager : MonoBehaviour
 {
     private BuildingData currentBuilding;
 
     [SerializeField] private GameObject previewObject;
-    private Renderer previewRenderer;
 
-    private Vector2Int currentGridPos; // posición en el grid
+    [SerializeField] private Transform buildingsContainer;
+
+    private Vector2Int currentGridPos;
 
     public PlayerController controller;
-
     public LayerMask groundLayer;
 
     public bool isBuildingMode = false;
+
+    private int rotation = 0;
+    private Vector2Int rotatedSize;
+
+    public GridCellHighlight gridHighlight;
+
+    private List<Building> placedBuildings = new List<Building>();
 
     private static BuildingManager _instance;
     public static BuildingManager Instance => _instance;
@@ -43,9 +51,25 @@ public class BuildingManager : MonoBehaviour
         currentBuilding = building;
         isBuildingMode = true;
 
-        previewObject = Instantiate(building.previewPrefab);
+        gridHighlight.SetVisible(true);
 
-        previewRenderer = previewObject.GetComponentInChildren<Renderer>();
+        // edificios existentes → modo preview
+        foreach (var b in placedBuildings)
+        {
+            if (b != null)
+                b.SetPreviewMode(true);
+        }
+
+        previewObject = Instantiate(building.prefab, buildingsContainer);
+
+        // activar preview en el edificio nuevo
+        Building previewBuilding = previewObject.GetComponent<Building>();
+
+        if (previewBuilding != null)
+            previewBuilding.SetPreviewMode(true);
+
+        rotation = 0;
+        rotatedSize = building.size;
     }
 
     void MovePreview()
@@ -54,45 +78,45 @@ public class BuildingManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayer))
         {
-            Vector2Int centerCell = GridManager.Instance.WorldToGrid(hit.point);
+            Vector2Int center = GridManager.Instance.WorldToGrid(hit.point);
 
-            // convertir centro → origen del edificio
-            Vector2Int origin = new Vector2Int(
-                centerCell.x - currentBuilding.size.x / 2,
-                centerCell.y - currentBuilding.size.y / 2
+            currentGridPos = GridManager.Instance.GetBuildingOrigin(
+                center,
+                rotatedSize
             );
 
-            currentGridPos = origin;
-
-            Vector3 worldPos = GridManager.Instance.GridToWorld(origin);
+            Vector3 worldPos = GridManager.Instance.GridToWorld(currentGridPos);
 
             Vector3 offset = new Vector3(
-                currentBuilding.size.x * GridManager.Instance.cellSize / 2f,
+                rotatedSize.x * GridManager.Instance.cellSize / 2f,
                 0,
-                currentBuilding.size.y * GridManager.Instance.cellSize / 2f
+                rotatedSize.y * GridManager.Instance.cellSize / 2f
             );
 
             previewObject.transform.position = worldPos + offset;
 
             bool canBuild = GridManager.Instance.CanBuild(
                 currentGridPos,
-                currentBuilding.size
+                rotatedSize
             );
 
-            UpdatePreviewColor(canBuild);
+            Building previewBuilding = previewObject.GetComponent<Building>();
+
+            if (previewBuilding != null)
+            {
+                previewBuilding.SetBuildValid(canBuild);
+            }
+
+            GridManager.Instance.DrawBuildPreview(
+                currentGridPos,
+                rotatedSize
+            );
         }
-    }
-
-    void UpdatePreviewColor(bool canBuild)
-    {
-        if (previewRenderer == null) return;
-
-        previewRenderer.material.color = canBuild ? Color.green : Color.red;
     }
 
     public void Build()
     {
-        if (!GridManager.Instance.CanBuild(currentGridPos, currentBuilding.size))
+        if (!GridManager.Instance.CanBuild(currentGridPos, rotatedSize))
             return;
 
         if (!HasResources())
@@ -103,20 +127,28 @@ public class BuildingManager : MonoBehaviour
         Vector3 worldPos = GridManager.Instance.GridToWorld(currentGridPos);
 
         Vector3 offset = new Vector3(
-            currentBuilding.size.x * GridManager.Instance.cellSize / 2f,
+            rotatedSize.x * GridManager.Instance.cellSize / 2f,
             0,
-            currentBuilding.size.y * GridManager.Instance.cellSize / 2f
+            rotatedSize.y * GridManager.Instance.cellSize / 2f
         );
 
         Vector3 buildPosition = worldPos + offset;
 
-        Instantiate(currentBuilding.prefab, buildPosition, Quaternion.identity);
+        previewObject.transform.position = buildPosition;
 
-        GridManager.Instance.PlaceBuilding(currentGridPos, currentBuilding.size);
+        GridManager.Instance.PlaceBuilding(currentGridPos, rotatedSize);
 
-        Destroy(previewObject);
+        Building building = previewObject.GetComponent<Building>();
 
-        isBuildingMode = false;
+        if (building != null)
+        {
+            building.SetPreviewMode(false);
+            placedBuildings.Add(building);
+        }
+
+        previewObject = null;
+
+        ExitBuildMode();
     }
 
     public void CancelBuild()
@@ -124,7 +156,20 @@ public class BuildingManager : MonoBehaviour
         if (previewObject != null)
             Destroy(previewObject);
 
+        ExitBuildMode();
+    }
+
+    void ExitBuildMode()
+    {
         isBuildingMode = false;
+
+        gridHighlight.SetVisible(false);
+
+        foreach (var b in placedBuildings)
+        {
+            if (b != null)
+                b.SetPreviewMode(false);
+        }
     }
 
     bool HasResources()
@@ -142,5 +187,21 @@ public class BuildingManager : MonoBehaviour
     {
         ResourceManager.Instance.currentWood -= currentBuilding.woodCost;
         ResourceManager.Instance.currentStone -= currentBuilding.stoneCost;
+    }
+
+    public void RotateBuilding()
+    {
+        rotation += 90;
+
+        if (rotation >= 360)
+            rotation = 0;
+
+        if (previewObject != null)
+            previewObject.transform.rotation = Quaternion.Euler(0, rotation, 0);
+
+        rotatedSize = new Vector2Int(
+            rotatedSize.y,
+            rotatedSize.x
+        );
     }
 }
