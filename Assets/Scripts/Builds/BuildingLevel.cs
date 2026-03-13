@@ -12,5 +12,5 @@ public class BuildingLevel
     public float productionTime;
     public int productionAmount;
 
-    public GameObject prefab;
+    public GameObject modelPrefab;
 }

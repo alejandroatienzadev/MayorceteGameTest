@@ -50,8 +50,13 @@ MonoBehaviour:
   - {fileID: 7709633683291323459}
   - {fileID: 8859512512724954367}
   - {fileID: 5960271137788520001}
+  isBuilded: 0
+  productionTime: 0
+  productionAmount: 0
+  visualRoot: {fileID: 7644648149212719344}
   normalMaterial: {fileID: 2100000, guid: 88c625725e767ad478b9f38a5e0f6fd4, type: 2}
   previewMaterial: {fileID: 2100000, guid: f79c85dba7666714390151a436c690ae, type: 2}
+  buildingLevel: 0
 --- !u!1 &2415619412610784558
 GameObject:
   m_ObjectHideFlags: 0
@@ -62,7 +67,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7644648149212719344}
   m_Layer: 0
-  m_Name: Model
+  m_Name: Lvl1 Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -92,22 +97,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7644648149212719344}
     m_Modifications:
-    - target: {fileID: 2537075178436294444, guid: 2cc505dc7481e8b438fee6249ba48916, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 7b3d0b6e5f3b866489d86fee2a25fcd6, type: 2}
-    - target: {fileID: 2921233950543442237, guid: 2cc505dc7481e8b438fee6249ba48916, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.46083
-      objectReference: {fileID: 0}
-    - target: {fileID: 2921233950543442237, guid: 2cc505dc7481e8b438fee6249ba48916, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.46083
-      objectReference: {fileID: 0}
-    - target: {fileID: 2921233950543442237, guid: 2cc505dc7481e8b438fee6249ba48916, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.46083
-      objectReference: {fileID: 0}
     - target: {fileID: 2921233950543442237, guid: 2cc505dc7481e8b438fee6249ba48916, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 5368587506679809406}
   - component: {fileID: 942107161272530021}
   m_Layer: 0
-  m_Name: Sawmhill
+  m_Name: Sawmill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,8 +82,13 @@ MonoBehaviour:
   - {fileID: 27770364476621452}
   - {fileID: 7286191674612500561}
   - {fileID: 8161243541935633458}
+  isBuilded: 0
+  productionTime: 0
+  productionAmount: 0
+  visualRoot: {fileID: 2791095618718227715}
   normalMaterial: {fileID: 2100000, guid: 88c625725e767ad478b9f38a5e0f6fd4, type: 2}
   previewMaterial: {fileID: 2100000, guid: f79c85dba7666714390151a436c690ae, type: 2}
+  buildingLevel: 0
 --- !u!1001 &2139374817761840951
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -92,18 +97,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2791095618718227715}
     m_Modifications:
-    - target: {fileID: 1180858216531102008, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.14263
-      objectReference: {fileID: 0}
-    - target: {fileID: 1180858216531102008, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.14263
-      objectReference: {fileID: 0}
-    - target: {fileID: 1180858216531102008, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.14263
-      objectReference: {fileID: 0}
     - target: {fileID: 1180858216531102008, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -148,14 +141,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Buildings_Supermarket_02
       objectReference: {fileID: 0}
-    - target: {fileID: 2148849172788661691, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2148849172788661691, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 7b3d0b6e5f3b866489d86fee2a25fcd6, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

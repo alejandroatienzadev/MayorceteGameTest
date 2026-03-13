@@ -62,7 +62,7 @@ public class BuildingManager : MonoBehaviour
         }
 
         // usamos el prefab del nivel 0
-        GameObject prefab = building.levels[0].prefab;
+        GameObject prefab = building.levels[0].modelPrefab;
 
         selectedBuild = Instantiate(prefab, buildingsContainer);
 

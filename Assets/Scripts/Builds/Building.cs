@@ -11,6 +11,7 @@ public class Building : MonoBehaviour
     [Header("DEBUG Level Data")]
     [SerializeField] private float productionTime;
     [SerializeField] private int productionAmount;
+    [SerializeField] private Transform visualRoot;
 
     [Header("Materials")]
     public Material normalMaterial;
@@ -83,11 +84,12 @@ public class Building : MonoBehaviour
 
         ApplyLevelStats();
 
+        ApplyLevelVisual();
+
         counter = productionTime;
 
         buildingLevel = CurrentLevelData.level;
 
-        ApplyLevelVisual();
     }
 
     void ApplyLevelStats()
@@ -119,21 +121,21 @@ public class Building : MonoBehaviour
 
     void ApplyLevelVisual()
     {
-        if (CurrentLevelData.prefab == null)
+        if (visualRoot == null)
             return;
 
-        GameObject newVisual = Instantiate(
-            CurrentLevelData.prefab,
-            transform.position,
-            transform.rotation,
-            transform
+        // borrar modelo actual
+        foreach (Transform child in visualRoot)
+            Destroy(child.gameObject);
+
+        // instanciar nuevo modelo
+        GameObject model = Instantiate(
+            CurrentLevelData.modelPrefab,
+            visualRoot
         );
 
-        foreach (Transform child in transform)
-        {
-            if (child != newVisual.transform)
-                Destroy(child.gameObject);
-        }
+        model.transform.localPosition = Vector3.zero;
+        model.transform.localRotation = Quaternion.identity;
 
         renderers = null;
 
