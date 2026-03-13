@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 public class Building : MonoBehaviour
 {
@@ -7,39 +6,143 @@ public class Building : MonoBehaviour
 
     [SerializeField] private Renderer[] renderers;
 
-    public int currentLevel = 0;
-
     public bool isBuilded;
 
+    [Header("DEBUG Level Data")]
+    [SerializeField] private float productionTime;
+    [SerializeField] private int productionAmount;
+
+    [Header("Materials")]
     public Material normalMaterial;
     public Material previewMaterial;
-    public float counter;
 
-    public void Awake()
+    private MaterialPropertyBlock propBlock;
+
+    private float counter;
+
+    private int currentLevel = 0;
+    public int buildingLevel;
+
+    public BuildingLevel CurrentLevelData
+    {
+        get { return data.levels[currentLevel]; }
+    }
+
+    void Awake()
     {
         GetRenderers();
-        counter = data.productionTime;
+
+        propBlock = new MaterialPropertyBlock();
+
+        currentLevel = 0;
+        buildingLevel = CurrentLevelData.level;
+
+        ApplyLevelStats();
+
+        counter = productionTime;
     }
 
     void Update()
     {
-        if (isBuilded)
+        if (!isBuilded)
+            return;
+
+        counter -= Time.deltaTime;
+
+        if (counter <= 0)
         {
-            if (counter >= 0)
-            {
-                counter -= Time.deltaTime;
-            }else
-            {
-                GenerateResources();
-            }
+            GenerateResources();
+            counter = productionTime;
         }
     }
 
     void GenerateResources()
     {
-        ResourceManager.Instance.AddResource(data.resourceProduced, data.productionAmount);
-        counter = data.productionTime;
+        ResourceManager.Instance.AddResource(
+            data.resourceProduced,
+            productionAmount
+        );
     }
+
+#region Upgrade System
+
+    [ContextMenu("Upgrade")]
+    public void Upgrade()
+    {
+        if (currentLevel >= data.levels.Length - 1)
+            return;
+
+        BuildingLevel nextLevel = data.levels[currentLevel + 1];
+
+        if (!HasResources(nextLevel))
+            return;
+
+        SpendResources(nextLevel);
+
+        currentLevel++;
+
+        ApplyLevelStats();
+
+        counter = productionTime;
+
+        buildingLevel = CurrentLevelData.level;
+
+        ApplyLevelVisual();
+    }
+
+    void ApplyLevelStats()
+    {
+        productionAmount = CurrentLevelData.productionAmount;
+        productionTime = CurrentLevelData.productionTime;
+    }
+
+    bool HasResources(BuildingLevel level)
+    {
+        if (ResourceManager.Instance.currentWood < level.woodCost)
+            return false;
+
+        if (ResourceManager.Instance.currentStone < level.stoneCost)
+            return false;
+
+        if (ResourceManager.Instance.currentGold < level.goldCost)
+            return false;
+
+        return true;
+    }
+
+    void SpendResources(BuildingLevel level)
+    {
+        ResourceManager.Instance.currentWood -= level.woodCost;
+        ResourceManager.Instance.currentStone -= level.stoneCost;
+        ResourceManager.Instance.currentGold -= level.goldCost;
+    }
+
+    void ApplyLevelVisual()
+    {
+        if (CurrentLevelData.prefab == null)
+            return;
+
+        GameObject newVisual = Instantiate(
+            CurrentLevelData.prefab,
+            transform.position,
+            transform.rotation,
+            transform
+        );
+
+        foreach (Transform child in transform)
+        {
+            if (child != newVisual.transform)
+                Destroy(child.gameObject);
+        }
+
+        renderers = null;
+
+        GetRenderers();
+    }
+
+#endregion
+
+#region Render Setup
 
     [ContextMenu("GetRenderers")]
     private void GetRenderers()
@@ -47,32 +150,39 @@ public class Building : MonoBehaviour
         renderers = GetComponentsInChildren<Renderer>();
     }
 
+#endregion
+
 #region Visual Methods
-    public void SetPreviewMode(bool preview) 
-    { 
-        Material mat = preview ? previewMaterial : normalMaterial; 
-    
-        foreach (Renderer r in renderers) 
+
+    public void SetPreviewMode(bool preview)
+    {
+        GetRenderers();
+        Material mat = preview ? previewMaterial : normalMaterial;
+
+        foreach (Renderer r in renderers)
         {
             Material[] mats = new Material[r.sharedMaterials.Length];
+
             for (int i = 0; i < mats.Length; i++)
-            {
                 mats[i] = mat;
-            }
-            r.materials = mats; 
-        } 
+
+            r.materials = mats;
+        }
     }
 
-    public void SetBuildValid(bool valid) 
-    { 
-        Color color = valid ? data.canBuildColor : data.cantBuildColor; 
-        foreach (Renderer r in renderers) 
+    public void SetBuildValid(bool valid)
+    {
+        Color color = valid ? data.canBuildColor : data.cantBuildColor;
+
+        foreach (Renderer r in renderers)
         {
-            MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
             r.GetPropertyBlock(propBlock);
-            propBlock.SetColor("_Color", color); 
+
+            propBlock.SetColor("_Color", color);
+
             r.SetPropertyBlock(propBlock);
         }
     }
+
 #endregion
 }

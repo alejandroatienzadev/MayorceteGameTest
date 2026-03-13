@@ -14,12 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Quarry
   icon: {fileID: 0}
-  woodCost: 10
-  stoneCost: 10
   size: {x: 2, y: 2}
   resourceProduced: 1
-  productionTime: 5
-  productionAmount: 4
-  prefab: {fileID: 1621793259195048918, guid: c07c61ac6c4a7e1469ad57c724f3c7eb, type: 3}
+  levels:
+  - level: 1
+    woodCost: 4
+    stoneCost: 4
+    goldCost: 0
+    productionTime: 4
+    productionAmount: 10
+    prefab: {fileID: 1621793259195048918, guid: c07c61ac6c4a7e1469ad57c724f3c7eb, type: 3}
+  - level: 2
+    woodCost: 10
+    stoneCost: 10
+    goldCost: 0
+    productionTime: 2
+    productionAmount: 15
+    prefab: {fileID: 1621793259195048918, guid: c07c61ac6c4a7e1469ad57c724f3c7eb, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}
   cantBuildColor: {r: 1, g: 0, b: 0, a: 1}

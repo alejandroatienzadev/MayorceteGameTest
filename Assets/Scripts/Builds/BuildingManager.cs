@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -50,6 +49,7 @@ public class BuildingManager : MonoBehaviour
     public void StartBuilding(BuildingData building)
     {
         CancelBuild();
+
         currentBuilding = building;
         isBuildingMode = true;
 
@@ -61,13 +61,18 @@ public class BuildingManager : MonoBehaviour
                 b.SetPreviewMode(true);
         }
 
-        selectedBuild = Instantiate(building.prefab, buildingsContainer);
+        // usamos el prefab del nivel 0
+        GameObject prefab = building.levels[0].prefab;
 
-        // activar preview en el edificio nuevo
+        selectedBuild = Instantiate(prefab, buildingsContainer);
+
         Building previewBuilding = selectedBuild.GetComponent<Building>();
 
         if (previewBuilding != null)
+        {
+            previewBuilding.data = building;
             previewBuilding.SetPreviewMode(true);
+        }
 
         rotation = 0;
         rotatedSize = building.size;
@@ -103,7 +108,8 @@ public class BuildingManager : MonoBehaviour
 
             Building previewBuilding = selectedBuild.GetComponent<Building>();
 
-            if (previewBuilding != null) previewBuilding.SetBuildValid(canBuild);
+            if (previewBuilding != null)
+                previewBuilding.SetBuildValid(canBuild);
 
             gridHighlight.ShowBuildArea(currentGridPos, rotatedSize);
         }
@@ -114,10 +120,16 @@ public class BuildingManager : MonoBehaviour
         if (!GridManager.Instance.CanBuild(currentGridPos, rotatedSize))
             return;
 
-        if (!HasResources())
+        var level0 = currentBuilding.levels[0];
+
+        if (!HasResources(level0))
             return;
 
-        ResourceManager.Instance.SpendResources(currentBuilding.woodCost, currentBuilding.stoneCost, currentBuilding.golCost);
+        ResourceManager.Instance.SpendResources(
+            level0.woodCost,
+            level0.stoneCost,
+            level0.goldCost
+        );
 
         Vector3 worldPos = GridManager.Instance.GridToWorld(currentGridPos);
 
@@ -138,8 +150,8 @@ public class BuildingManager : MonoBehaviour
         if (building != null)
         {
             building.SetPreviewMode(false);
-            placedBuildings.Add(building);
             building.isBuilded = true;
+            placedBuildings.Add(building);
         }
 
         selectedBuild = null;
@@ -168,12 +180,15 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
-    bool HasResources()
+    bool HasResources(BuildingLevel level)
     {
-        if (ResourceManager.Instance.currentWood < currentBuilding.woodCost)
+        if (ResourceManager.Instance.currentWood < level.woodCost)
             return false;
 
-        if (ResourceManager.Instance.currentStone < currentBuilding.stoneCost)
+        if (ResourceManager.Instance.currentStone < level.stoneCost)
+            return false;
+
+        if (ResourceManager.Instance.currentGold < level.goldCost)
             return false;
 
         return true;

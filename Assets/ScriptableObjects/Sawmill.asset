@@ -14,10 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Sawmill
   icon: {fileID: 0}
-  woodCost: 10
-  stoneCost: 10
   size: {x: 1, y: 1}
-  productionTime: 5
-  productionAmount: 4
-  prefab: {fileID: 3855413177538579037, guid: 5bd4d2a0c48bce84aa1e1b31e458e597, type: 3}
-  previewPrefab: {fileID: 3855413177538579037, guid: 5bd4d2a0c48bce84aa1e1b31e458e597, type: 3}
+  resourceProduced: 0
+  levels:
+  - level: 1
+    woodCost: 4
+    stoneCost: 4
+    goldCost: 0
+    productionTime: 4
+    productionAmount: 10
+    prefab: {fileID: 3855413177538579037, guid: 5bd4d2a0c48bce84aa1e1b31e458e597, type: 3}
+  - level: 2
+    woodCost: 10
+    stoneCost: 10
+    goldCost: 0
+    productionTime: 2
+    productionAmount: 15
+    prefab: {fileID: 3855413177538579037, guid: 5bd4d2a0c48bce84aa1e1b31e458e597, type: 3}
+  canBuildColor: {r: 1, g: 1, b: 1, a: 1}
+  cantBuildColor: {r: 1, g: 0, b: 0, a: 1}

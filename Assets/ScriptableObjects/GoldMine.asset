@@ -14,12 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: GoldMine
   icon: {fileID: 0}
-  woodCost: 10
-  stoneCost: 10
   size: {x: 2, y: 1}
   resourceProduced: 2
-  productionTime: 5
-  productionAmount: 4
-  prefab: {fileID: 4029880955521975455, guid: ed7e1007336e774409c5e1bd86dff758, type: 3}
+  levels:
+  - level: 1
+    woodCost: 4
+    stoneCost: 4
+    goldCost: 0
+    productionTime: 4
+    productionAmount: 10
+    prefab: {fileID: 4029880955521975455, guid: ed7e1007336e774409c5e1bd86dff758, type: 3}
+  - level: 2
+    woodCost: 10
+    stoneCost: 10
+    goldCost: 0
+    productionTime: 2
+    productionAmount: 15
+    prefab: {fileID: 4029880955521975455, guid: ed7e1007336e774409c5e1bd86dff758, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}
   cantBuildColor: {r: 1, g: 0, b: 0, a: 1}
