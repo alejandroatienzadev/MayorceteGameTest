@@ -88,4 +88,43 @@ public class GridCellHighlight : MonoBehaviour
             }
         }
     }
+
+    void ClearColors()
+    {   
+        for (int x = 0; x < gridManager.gridWidth; x++)
+        {
+            for (int z = 0; z < gridManager.gridHeight; z++)
+            {
+                Renderer r = cells[x, z].GetComponentInChildren<Renderer>();
+
+                if (r != null)
+                    r.material.color = new Color(0, 0, 0, 0.15f);
+            }
+        }
+    }
+
+    public void ShowBuildArea(Vector2Int origin, Vector2Int size)
+    {
+        ClearColors();
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int z = 0; z < size.y; z++)
+            {
+                int cellX = origin.x + x;
+                int cellZ = origin.y + z;
+
+                if (cellX < 0 || cellX >= gridManager.gridWidth ||
+                    cellZ < 0 || cellZ >= gridManager.gridHeight)
+                    continue;
+
+                bool buildable = gridManager.IsCellBuildable(cellX, cellZ);
+
+                Renderer r = cells[cellX, cellZ].GetComponentInChildren<Renderer>();
+
+                if (r != null)
+                    r.material.color = buildable ? Color.blue : Color.red;
+            }
+        }
+    }
 }
