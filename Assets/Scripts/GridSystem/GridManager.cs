@@ -13,6 +13,31 @@ public class GridManager : MonoBehaviour
 
     private GridCell[,] grid;
 
+    void OnDrawGizmos()
+    {
+        if (grid == null) return;
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int z = 0; z < gridHeight; z++)
+            {
+                GridCell cell = grid[x, z];
+
+                if (cell.occupied)
+                    Gizmos.color = Color.red;
+                else if (cell.buildable)
+                    Gizmos.color = Color.green;
+                else
+                    Gizmos.color = Color.gray;
+
+                Gizmos.DrawWireCube(
+                    cell.worldPosition + new Vector3(cellSize / 2f, 0, cellSize / 2f),
+                    new Vector3(cellSize, 0.05f, cellSize)
+                );
+            }
+        }
+    }
+
     void Awake()
     {
         if (_instance == null)
@@ -20,7 +45,10 @@ public class GridManager : MonoBehaviour
             _instance = this;
         }
         else
+        {
             Destroy(gameObject);
+        }
+
         GenerateGrid();
     }
 
@@ -181,27 +209,13 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos()
+    public void RemoveBuilding(Vector2Int origin, Vector2Int size)
     {
-        if (grid == null) return;
-
-        for (int x = 0; x < gridWidth; x++)
+        for (int x = 0; x < size.x; x++)
         {
-            for (int z = 0; z < gridHeight; z++)
+            for (int z = 0; z < size.y; z++)
             {
-                GridCell cell = grid[x, z];
-
-                if (cell.occupied)
-                    Gizmos.color = Color.red;
-                else if (cell.buildable)
-                    Gizmos.color = Color.green;
-                else
-                    Gizmos.color = Color.gray;
-
-                Gizmos.DrawWireCube(
-                    cell.worldPosition + new Vector3(cellSize / 2f, 0, cellSize / 2f),
-                    new Vector3(cellSize, 0.05f, cellSize)
-                );
+                grid[origin.x + x, origin.y + z].occupied = false;
             }
         }
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Building : MonoBehaviour
+public class Building : MonoBehaviour, IDamageable
 {
     public BuildingData data;
 
@@ -16,13 +16,18 @@ public class Building : MonoBehaviour
     [Header("Materials")]
     public Material normalMaterial;
     public Material previewMaterial;
-
     private MaterialPropertyBlock propBlock;
 
+    // Contador para la generación de recursos.
     private float counter;
 
+    // Nivel interno del edificio.
     private int currentLevel = 0;
+    // Nivel de control del edificio.
     public int buildingLevel;
+
+    public Vector2Int gridOrigin;
+    public Vector2Int gridSize;
 
     public BuildingLevel CurrentLevelData
     {
@@ -124,15 +129,15 @@ public class Building : MonoBehaviour
         if (visualRoot == null)
             return;
 
+
         // borrar modelo actual
         foreach (Transform child in visualRoot)
+        {
             Destroy(child.gameObject);
+        }
 
         // instanciar nuevo modelo
-        GameObject model = Instantiate(
-            CurrentLevelData.modelPrefab,
-            visualRoot
-        );
+        GameObject model = Instantiate(CurrentLevelData.modelPrefab, visualRoot);
 
         model.transform.localPosition = Vector3.zero;
         model.transform.localRotation = Quaternion.identity;
@@ -186,5 +191,10 @@ public class Building : MonoBehaviour
         }
     }
 
-#endregion
+    public void TakeDamage(float _damage)
+    {
+        
+    }
+
+    #endregion
 }

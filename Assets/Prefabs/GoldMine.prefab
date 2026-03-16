@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6722509201406651163}
   - component: {fileID: 759583161055670830}
-  m_Layer: 0
+  - component: {fileID: 2093097281572456197}
+  m_Layer: 7
   m_Name: GoldMine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57,6 +58,27 @@ MonoBehaviour:
   normalMaterial: {fileID: 2100000, guid: 88c625725e767ad478b9f38a5e0f6fd4, type: 2}
   previewMaterial: {fileID: 2100000, guid: f79c85dba7666714390151a436c690ae, type: 2}
   buildingLevel: 0
+--- !u!65 &2093097281572456197
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4029880955521975455}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 2, z: 4}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &5218583494667133871
 GameObject:
   m_ObjectHideFlags: 0
@@ -115,19 +137,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.70710784
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.70710576
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -135,7 +157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7963809002889240617, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z

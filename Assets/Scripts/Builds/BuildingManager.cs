@@ -1,27 +1,39 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class BuildingManager : MonoBehaviour
 {
-    private BuildingData currentBuilding;
-
-    [SerializeField] private GameObject selectedBuild;
-
-    [SerializeField] private Transform buildingsContainer;
-
-    private Vector2Int currentGridPos;
-
-    public PlayerController controller;
+    [Header("LayerMasks")]
     public LayerMask groundLayer;
 
-    public bool isBuildingMode = false;
+    public LayerMask buildingLayer;
+    // Variable que se rellenará para construir un edificio
+    private BuildingData currentBuilding;
 
+    [SerializeField, Tooltip("Variable para rotar y construir el edificio.")] 
+    private GameObject selectedBuild;
+
+    [SerializeField, Tooltip("Contenedor de edificios.")] 
+    private Transform buildingsContainer;
+    // Posición actual del grid.
+    private Vector2Int currentGridPos;
+    [Tooltip("Referencia a los controles")]
+    public PlayerController controller;
+    // Booleana para controlar si se encuentra en modo construcción o no.
+    bool _isBuildingMode = false;
+    public bool IsBuildingMode => _isBuildingMode;
+    // Rotacion que utilizaremos con los edificios.
     private int rotation = 0;
+    // Vector de rotacion
     private Vector2Int rotatedSize;
-
+    // Referencia al GridHighlight
     public GridCellHighlight gridHighlight;
 
     private List<Building> placedBuildings = new List<Building>();
+
+    [SerializeField, Tooltip("Edificio ya construido seleccionado")]
+    private Building selectedBuilding;
 
     private static BuildingManager _instance;
     public static BuildingManager Instance => _instance;
@@ -41,17 +53,22 @@ public class BuildingManager : MonoBehaviour
 
     void Update()
     {
-        if (!isBuildingMode) return;
+        if (!_isBuildingMode) return;
 
         MovePreview();
     }
 
+#region Building Methods
+    /// <summary>
+    /// Método para seleccionar la selección de edificio.
+    /// </summary>
+    /// <param name="building"></param>
     public void StartBuilding(BuildingData building)
     {
         CancelBuild();
 
         currentBuilding = building;
-        isBuildingMode = true;
+        _isBuildingMode = true;
 
         gridHighlight.SetVisible(true);
 
@@ -78,6 +95,9 @@ public class BuildingManager : MonoBehaviour
         rotatedSize = building.size;
     }
 
+    /// <summary>
+    /// Método para gestionar el movimiento del edificio seleccionado
+    /// </summary>
     void MovePreview()
     {
         Ray ray = Camera.main.ScreenPointToRay(controller.mousePosition);
@@ -115,6 +135,9 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Método para gestionar la construcción del edificio.
+    /// </summary>
     public void Build()
     {
         if (!GridManager.Instance.CanBuild(currentGridPos, rotatedSize))
@@ -152,13 +175,19 @@ public class BuildingManager : MonoBehaviour
             building.SetPreviewMode(false);
             building.isBuilded = true;
             placedBuildings.Add(building);
+            building.gridOrigin = currentGridPos;
+            building.gridSize = rotatedSize;
         }
+
 
         selectedBuild = null;
 
         ExitBuildMode();
     }
 
+    /// <summary>
+    /// Método para cancelar la construcción de un edificio.
+    /// </summary>
     public void CancelBuild()
     {
         if (selectedBuild != null)
@@ -167,9 +196,12 @@ public class BuildingManager : MonoBehaviour
         ExitBuildMode();
     }
 
+    /// <summary>
+    /// Método para gestionar la salida del modo construcción
+    /// </summary>
     void ExitBuildMode()
     {
-        isBuildingMode = false;
+        _isBuildingMode = false;
 
         gridHighlight.SetVisible(false);
 
@@ -180,6 +212,11 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Bool para comprobar si hay recursos o no.
+    /// </summary>
+    /// <param name="level"></param>
+    /// <returns></returns>
     bool HasResources(BuildingLevel level)
     {
         if (ResourceManager.Instance.currentWood < level.woodCost)
@@ -194,6 +231,9 @@ public class BuildingManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Método para la rotación de los edificios durante la construcción.
+    /// </summary>
     public void RotateBuilding()
     {
         rotation += 90;
@@ -209,4 +249,89 @@ public class BuildingManager : MonoBehaviour
             rotatedSize.x
         );
     }
+#endregion
+
+#region Build Selection
+    public void SelectBuilding()
+    {
+        // ignorar clicks en UI
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
+
+        Ray ray = Camera.main.ScreenPointToRay(controller.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, buildingLayer))
+        {
+            Building building = hit.collider.GetComponentInParent<Building>();
+
+            if (building != null)
+            {
+                SetSelected(building);
+            }
+        }
+        else
+        {
+            Deselect();
+        }
+    }
+
+    void SetSelected(Building building)
+    {
+        if (selectedBuilding != null)
+            Deselect();
+
+        selectedBuilding = building;
+
+        Debug.Log("Selected: " + building.data.buildingName);
+        UIManager.Instance.EnableEditMode();
+    }
+
+    void Deselect()
+    {
+        if (!selectedBuilding) return;
+        
+        selectedBuilding = null;
+        UIManager.Instance.DisableEditMode();
+    }
+
+    public void ReRotateBuilding()
+    {
+        if (selectedBuilding == null)
+            return;
+
+        Vector2Int origin = selectedBuilding.gridOrigin;
+        Vector2Int size = selectedBuilding.gridSize;
+
+        GridManager.Instance.RemoveBuilding(origin, size);
+
+        Vector2Int newSize = new Vector2Int(size.y, size.x);
+
+        if (!GridManager.Instance.CanBuild(origin, newSize))
+        {
+            GridManager.Instance.PlaceBuilding(origin, size);
+            return;
+        }
+
+        selectedBuilding.transform.Rotate(0, 90, 0);
+
+        selectedBuilding.gridSize = newSize;
+
+        Vector3 worldPos = GridManager.Instance.GridToWorld(origin);
+
+        Vector3 offset = new Vector3(
+            newSize.x * GridManager.Instance.cellSize / 2f,
+            0,
+            newSize.y * GridManager.Instance.cellSize / 2f
+        );
+
+        selectedBuilding.transform.position = worldPos + offset;
+
+        GridManager.Instance.PlaceBuilding(origin, newSize);
+    }
+    public void UpgradeBuilding()
+    {
+        if (!selectedBuilding) return;
+        selectedBuilding.Upgrade();
+    }
+#endregion
 }

@@ -42,7 +42,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5368587506679809406}
   - component: {fileID: 942107161272530021}
-  m_Layer: 0
+  - component: {fileID: 3748107182011895507}
+  m_Layer: 7
   m_Name: Sawmill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,6 +90,27 @@ MonoBehaviour:
   normalMaterial: {fileID: 2100000, guid: 88c625725e767ad478b9f38a5e0f6fd4, type: 2}
   previewMaterial: {fileID: 2100000, guid: f79c85dba7666714390151a436c690ae, type: 2}
   buildingLevel: 0
+--- !u!65 &3748107182011895507
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3855413177538579037}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 1, z: 2}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1001 &2139374817761840951
 PrefabInstance:
   m_ObjectHideFlags: 0

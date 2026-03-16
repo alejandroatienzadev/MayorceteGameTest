@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
     public CanvasGroup mainCanvas;
     public CanvasGroup buildCanvas;
     public CanvasGroup resourceCanvas;
+    public CanvasGroup editBuildingCanvas;
 
     public TextMeshProUGUI stoneAmountText;
     public TextMeshProUGUI woodAmountText;
@@ -25,6 +26,7 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
         DisableCanvas(buildCanvas);
+        DisableCanvas(editBuildingCanvas);
         EnableCanvas(mainCanvas);
     }
 
@@ -57,5 +59,17 @@ public class UIManager : MonoBehaviour
         canvas.alpha = 0f;
         canvas.blocksRaycasts = false;
         canvas.interactable = false;
+    }
+    public void EnableEditMode()
+    {
+        DisableCanvas(mainCanvas);
+        DisableCanvas(buildCanvas);
+        EnableCanvas(editBuildingCanvas);
+    }
+
+    public void DisableEditMode()
+    {
+        DisableCanvas(editBuildingCanvas);
+        EnableCanvas(mainCanvas);
     }
 }
