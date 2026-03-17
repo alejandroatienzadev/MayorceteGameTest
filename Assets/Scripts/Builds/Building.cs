@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Building : MonoBehaviour, IDamageable
 {
@@ -7,6 +8,8 @@ public class Building : MonoBehaviour, IDamageable
     [SerializeField] private Renderer[] renderers;
 
     public bool isBuilded;
+    [Header("UI")]
+    public BuildingProgressUI progressUI;
 
     [Header("DEBUG Level Data")]
     [SerializeField] private float productionTime;
@@ -25,6 +28,9 @@ public class Building : MonoBehaviour, IDamageable
     private int currentLevel = 0;
     // Nivel de control del edificio.
     public int buildingLevel;
+
+    private float buildTimer;
+    private bool isUnderConstruction;
 
     public Vector2Int gridOrigin;
     public Vector2Int gridSize;
@@ -50,6 +56,21 @@ public class Building : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (isUnderConstruction)
+        {
+            buildTimer -= Time.deltaTime;
+
+            if (progressUI != null)
+                progressUI.SetProgress(CurrentLevelData.buildTime - buildTimer, CurrentLevelData.buildTime);
+
+            if (buildTimer <= 0)
+            {
+                FinishConstruction();
+            }
+
+            return;
+        }
+
         if (!isBuilded)
             return;
 
@@ -64,17 +85,39 @@ public class Building : MonoBehaviour, IDamageable
 
     void GenerateResources()
     {
-        ResourceManager.Instance.AddResource(
-            data.resourceProduced,
-            productionAmount
-        );
+        ResourceManager.Instance.AddResource(data.resourceProduced, productionAmount);
+        Debug.Log("Generados " + productionAmount + data.resourceProduced);
     }
 
-#region Upgrade System
+#region Upgrade & Build System
+    public void StartConstruction()
+    {
+        isUnderConstruction = true;
+        isBuilded = false;
+
+        buildTimer = CurrentLevelData.buildTime;
+
+        if(progressUI) progressUI.fillImage.gameObject.SetActive(true);
+    }
+
+    void FinishConstruction()
+    {
+        isUnderConstruction = false;
+        isBuilded = true;
+
+        ApplyLevelVisual();
+        ApplyLevelStats();
+
+        counter = productionTime;
+        if (progressUI) progressUI.fillImage.gameObject.SetActive(false);
+    }
 
     [ContextMenu("Upgrade")]
     public void Upgrade()
     {
+        if (isUnderConstruction)
+            return;
+
         if (currentLevel >= data.levels.Length - 1)
             return;
 
@@ -87,14 +130,9 @@ public class Building : MonoBehaviour, IDamageable
 
         currentLevel++;
 
-        ApplyLevelStats();
-
-        ApplyLevelVisual();
-
-        counter = productionTime;
-
         buildingLevel = CurrentLevelData.level;
 
+        StartConstruction();
     }
 
     void ApplyLevelStats()
@@ -191,10 +229,10 @@ public class Building : MonoBehaviour, IDamageable
         }
     }
 
+    #endregion
     public void TakeDamage(float _damage)
     {
         
     }
 
-    #endregion
 }

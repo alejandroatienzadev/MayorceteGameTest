@@ -9,6 +9,8 @@ public class BuildingLevel
     public int stoneCost;
     public int goldCost;
 
+    public float buildTime;
+
     public float productionTime;
     public int productionAmount;
 

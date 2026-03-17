@@ -172,9 +172,10 @@ public class BuildingManager : MonoBehaviour
 
         if (building != null)
         {
-            building.SetPreviewMode(false);
-            building.isBuilded = true;
+            building.StartConstruction();
+
             placedBuildings.Add(building);
+
             building.gridOrigin = currentGridPos;
             building.gridSize = rotatedSize;
         }

@@ -21,14 +21,16 @@ MonoBehaviour:
     woodCost: 4
     stoneCost: 4
     goldCost: 0
-    productionTime: 4
+    buildTime: 3
+    productionTime: 2
     productionAmount: 10
     modelPrefab: {fileID: 1621793259195048918, guid: c07c61ac6c4a7e1469ad57c724f3c7eb, type: 3}
   - level: 2
     woodCost: 10
     stoneCost: 10
     goldCost: 0
-    productionTime: 2
+    buildTime: 0
+    productionTime: 1
     productionAmount: 15
     modelPrefab: {fileID: 7269352113077621492, guid: 695027d97c96ebb428210d75f82de035, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}
