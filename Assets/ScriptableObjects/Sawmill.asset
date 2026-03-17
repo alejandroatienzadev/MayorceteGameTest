@@ -24,7 +24,7 @@ MonoBehaviour:
     buildTime: 3
     productionTime: 2
     productionAmount: 10
-    modelPrefab: {fileID: 3855413177538579037, guid: 5bd4d2a0c48bce84aa1e1b31e458e597, type: 3}
+    modelPrefab: {fileID: 2113023565702562432, guid: 3bba5060360b9fe4d8077d5954d7371f, type: 3}
   - level: 2
     woodCost: 10
     stoneCost: 10

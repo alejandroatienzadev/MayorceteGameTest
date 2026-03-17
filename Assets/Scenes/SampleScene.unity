@@ -650,7 +650,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 277658894}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -4164,6 +4164,7 @@ MonoBehaviour:
     m_Bits: 128
   selectedBuild: {fileID: 0}
   buildingsContainer: {fileID: 1986697792}
+  buildingContainerPrefab: {fileID: 1621793259195048918, guid: c07c61ac6c4a7e1469ad57c724f3c7eb, type: 3}
   controller: {fileID: 1309650723}
   gridHighlight: {fileID: 1207960671}
   selectedBuilding: {fileID: 0}
