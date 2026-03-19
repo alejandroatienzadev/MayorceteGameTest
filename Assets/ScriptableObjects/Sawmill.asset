@@ -16,6 +16,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   size: {x: 1, y: 1}
   resourceProduced: 0
+  dustRadius: 2
   levels:
   - level: 1
     woodCost: 4

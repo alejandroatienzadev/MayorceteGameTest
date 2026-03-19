@@ -2300,7 +2300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResourceManager
   currentWood: 2000
   currentStone: 2000
-  currentGold: 0
+  currentGold: 2000
   resourceUI: {fileID: 965358837}
 --- !u!1 &1207960670
 GameObject:
@@ -3972,7 +3972,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 980af97202d4a844f8d7df287568e752, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4192,6 +4192,7 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1201802550}
+  - {fileID: 1309650724}
   - {fileID: 2137981292}
   - {fileID: 140352660}
   - {fileID: 2082002148}
@@ -4202,7 +4203,6 @@ SceneRoots:
   - {fileID: 267138966}
   - {fileID: 615600019}
   - {fileID: 68463536}
-  - {fileID: 1309650724}
   - {fileID: 1986697792}
   - {fileID: 1167350326}
   - {fileID: 535724817}

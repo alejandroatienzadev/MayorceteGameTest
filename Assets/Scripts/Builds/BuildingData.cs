@@ -8,6 +8,7 @@ public class BuildingData : ScriptableObject
 
     public Vector2Int size;
     public ResourceType resourceProduced;
+    public float dustRadius;
 
     public BuildingLevel[] levels;
 

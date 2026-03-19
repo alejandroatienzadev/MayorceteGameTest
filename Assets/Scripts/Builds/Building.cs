@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 
 public class Building : MonoBehaviour, IDamageable
 {
@@ -17,6 +18,7 @@ public class Building : MonoBehaviour, IDamageable
     [SerializeField] private Transform visualRoot;
     public Material normalMaterial;
     public Material previewMaterial;
+    public VisualEffect dustVFX;
 
     [Header("DEBUG Info")]
     [SerializeField] private float productionTime;
@@ -25,12 +27,15 @@ public class Building : MonoBehaviour, IDamageable
     public int buildingLevel;
 
     private MaterialPropertyBlock propBlock;
-    private float counter;
+    private float productionCounter;
     private float buildTimer;
     private bool isUnderConstruction;
 
     public Vector2Int gridOrigin;
     public Vector2Int gridSize;
+
+    [Header("Construction Animation")]
+    [SerializeField] private float startYOffset = -2f;
 
     public BuildingLevel CurrentLevelData
     {
@@ -46,6 +51,14 @@ public class Building : MonoBehaviour, IDamageable
         propBlock = new MaterialPropertyBlock();
         
         if (visualRoot == null) visualRoot = transform.Find("Model");
+    }
+
+    void Start()
+    {
+        if (dustVFX)
+        {
+            dustVFX.gameObject.SetActive(false);
+        }   
     }
 
     /// <summary>
@@ -65,7 +78,7 @@ public class Building : MonoBehaviour, IDamageable
             
             this.gameObject.name = data.name;
 
-            counter = productionTime;
+            productionCounter = productionTime;
         }
     }
 
@@ -75,23 +88,34 @@ public class Building : MonoBehaviour, IDamageable
         {
             buildTimer -= Time.deltaTime;
 
-            if (progressUI != null && CurrentLevelData != null)
-                progressUI.SetProgress(CurrentLevelData.buildTime - buildTimer, CurrentLevelData.buildTime);
+            float totalTime = CurrentLevelData.buildTime;
+            float elapsedTime = totalTime - buildTimer;
+            float progress = Mathf.Clamp01(elapsedTime / totalTime);
+
+            if (visualRoot != null)
+            {
+                float currentY = Mathf.Lerp(startYOffset, 0, progress);
+                visualRoot.localPosition = new Vector3(0, currentY, 0);
+            }
+
+            if (progressUI != null)
+                progressUI.SetProgress(elapsedTime, totalTime);
 
             if (buildTimer <= 0)
             {
                 FinishConstruction();
             }
+
             return;
         }
 
         if (!isBuilded) return;
 
-        counter -= Time.deltaTime;
-        if (counter <= 0)
+        productionCounter -= Time.deltaTime;
+        if (productionCounter <= 0)
         {
             GenerateResources();
-            counter = productionTime;
+            productionCounter = productionTime;
         }
     }
 
@@ -108,12 +132,23 @@ public class Building : MonoBehaviour, IDamageable
     {
         if (CurrentLevelData == null) return;
 
+        ApplyLevelVisual();
+
+        if (visualRoot != null)
+            visualRoot.localPosition = new Vector3(0, startYOffset, 0);
+
         isUnderConstruction = true;
         isBuilded = false;
         buildTimer = CurrentLevelData.buildTime;
 
-        if (progressUI && progressUI.fillImage) 
-            progressUI.fillImage.gameObject.SetActive(true);
+        if (progressUI && progressUI.fillImage) progressUI.fillImage.gameObject.SetActive(true);
+
+        if (dustVFX)
+        {
+            dustVFX.gameObject.SetActive(true);
+            dustVFX.SetFloat("CircleRadius", data.dustRadius);
+            dustVFX.Play();
+        }
     }
 
     void FinishConstruction()
@@ -121,12 +156,19 @@ public class Building : MonoBehaviour, IDamageable
         isUnderConstruction = false;
         isBuilded = true;
 
-        ApplyLevelVisual();
+        if (visualRoot != null) visualRoot.localPosition = Vector3.zero;
+
         ApplyLevelStats();
 
-        counter = productionTime;
+        productionCounter = productionTime;
+        
         if (progressUI && progressUI.fillImage) 
             progressUI.fillImage.gameObject.SetActive(false);
+
+        if (dustVFX)
+        {
+            dustVFX.Stop();
+        }
     }
 
     [ContextMenu("Upgrade")]
