@@ -3514,7 +3514,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2137981291}
         m_TargetAssemblyTypeName: BuildingManager, Assembly-CSharp
-        m_MethodName: UpgradeBuilding
+        m_MethodName: UpgradeBuild
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

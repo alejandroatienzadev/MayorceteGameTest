@@ -149,6 +149,7 @@ public class Building : MonoBehaviour, IDamageable
             dustVFX.SetFloat("CircleRadius", data.dustRadius);
             dustVFX.Play();
         }
+        ResourceManager.Instance.SpendResources(CurrentLevelData.woodCost, CurrentLevelData.stoneCost, CurrentLevelData.goldCost);
     }
 
     void FinishConstruction()

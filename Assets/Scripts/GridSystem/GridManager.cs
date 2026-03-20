@@ -117,24 +117,25 @@ public class GridManager : MonoBehaviour
 
     public Vector2Int GetBuildingOrigin(Vector2Int center, Vector2Int size)
     {
-        int originX = center.x - size.x / 2;
-        int originZ = center.y - size.y / 2;
+        int originX = center.x - (size.x / 2);
+        int originZ = center.y - (size.y / 2);
+
+        originX = Mathf.Clamp(originX, 0, gridWidth - size.x);
+        originZ = Mathf.Clamp(originZ, 0, gridHeight - size.y);
 
         return new Vector2Int(originX, originZ);
     }
 
     public bool CanBuild(Vector2Int origin, Vector2Int size)
     {
+        if (!IsAreaInsideGrid(origin, size)) return false;
+
         for (int x = 0; x < size.x; x++)
         {
             for (int z = 0; z < size.y; z++)
             {
                 int checkX = origin.x + x;
                 int checkZ = origin.y + z;
-
-                if (checkX < 0 || checkX >= gridWidth ||
-                    checkZ < 0 || checkZ >= gridHeight)
-                    return false;
 
                 GridCell cell = grid[checkX, checkZ];
 
@@ -218,5 +219,16 @@ public class GridManager : MonoBehaviour
                 grid[origin.x + x, origin.y + z].occupied = false;
             }
         }
+    }
+
+    public bool IsInsideGrid(Vector2Int pos)
+    {
+        return pos.x >= 0 && pos.x < gridWidth && pos.y >= 0 && pos.y < gridHeight;
+    }
+
+    public bool IsAreaInsideGrid(Vector2Int origin, Vector2Int size)
+    {
+        return origin.x >= 0 && (origin.x + size.x) <= gridWidth &&
+            origin.y >= 0 && (origin.y + size.y) <= gridHeight;
     }
 }
