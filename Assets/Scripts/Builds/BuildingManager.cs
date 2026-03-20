@@ -17,8 +17,11 @@ public class BuildingManager : MonoBehaviour
     private Vector2Int currentGridPos;
     public PlayerController controller;
     
-    private bool _isBuildingMode = false;
-    public bool IsBuildingMode => _isBuildingMode;
+    private bool _buildingMode = false;
+    public bool BuildinMode => _buildingMode;
+
+    private bool _isBuilding = false;
+    public bool IsBuilding => _isBuilding;
 
     private int rotation = 0;
     private Vector2Int rotatedSize;
@@ -45,6 +48,7 @@ public class BuildingManager : MonoBehaviour
     [SerializeField] private BuildingData wallSegmentData;
     private Vector2Int? wallStartPos = null;
 
+#region Unity Methods
     void Awake()
     {
         if (_instance == null) { _instance = this; DontDestroyOnLoad(gameObject); }
@@ -53,17 +57,20 @@ public class BuildingManager : MonoBehaviour
 
     void Update()
     {
-        if (!_isBuildingMode) return;
+        if (!_isBuilding) return;
         if (currentMode == BuildMode.Normal) MovePreview();
         else if (currentMode == BuildMode.Wall) HandleWallPreview();
     }
+#endregion
+
+#region Building Methods
 
     public void StartBuilding(BuildingData building)
     {
         CancelBuild();
         currentMode = BuildMode.Normal;
         currentBuilding = building;
-        _isBuildingMode = true;
+        _isBuilding = true;
         gridHighlight.SetVisible(true);
         foreach (var b in placedBuildings) if (b != null) b.SetPreviewMode(true);
         selectedBuild = Instantiate(buildingContainerPrefab, buildingsContainer);
@@ -72,15 +79,6 @@ public class BuildingManager : MonoBehaviour
         previewBuilding.SetPreviewMode(true);
         rotation = 0;
         rotatedSize = building.size;
-    }
-
-    public void StartWallBuilding()
-    {
-        CancelBuild();
-        currentMode = BuildMode.Wall;
-        _isBuildingMode = true;
-        gridHighlight.SetVisible(true);
-        wallStartPos = null;
     }
 
     void MovePreview()
@@ -99,6 +97,61 @@ public class BuildingManager : MonoBehaviour
             gridHighlight.ShowBuildArea(currentGridPos, rotatedSize);
         }
     }
+    public void Build()
+    {
+        if (Time.time - lastBuildTime < buildCooldown) return;
+        lastBuildTime = Time.time;
+
+        if (currentMode == BuildMode.Wall) { HandleWallClick(); return; }
+
+        if (selectedBuild == null || currentBuilding == null) return;
+        if (!GridManager.Instance.CanBuild(currentGridPos, rotatedSize)) { CancelBuild(); return; }
+
+        GridManager.Instance.PlaceBuilding(currentGridPos, rotatedSize);
+        Building building = selectedBuild.GetComponent<Building>();
+        building.gridOrigin = currentGridPos;
+        building.gridSize = rotatedSize;
+        building.StartConstruction();
+        placedBuildings.Add(building);
+        selectedBuild = null;
+        ExitBuildMode();
+    }
+
+    public void CancelBuild()
+    {
+        ClearWallPreviews();
+        if (selectedBuild != null) Destroy(selectedBuild);
+        wallStartPos = null;
+        ExitBuildMode();
+    }
+    void ExitBuildMode()
+    {
+        _isBuilding = false;
+        gridHighlight.SetVisible(false);
+        ClearWallPreviews(); 
+        foreach (var b in placedBuildings) if (b != null) b.SetPreviewMode(false);
+    }
+
+    public void RotateBuilding()
+    {
+        if (currentMode != BuildMode.Normal || selectedBuild == null) return;
+        rotation = (rotation + 90) % 360;
+        selectedBuild.transform.rotation = Quaternion.Euler(0, rotation, 0);
+        rotatedSize = new Vector2Int(rotatedSize.y, rotatedSize.x);
+    }
+
+#endregion
+
+#region Wall Building Methods
+    public void StartWallBuilding()
+    {
+        CancelBuild();
+        currentMode = BuildMode.Wall;
+        _isBuilding = true;
+        gridHighlight.SetVisible(true);
+        wallStartPos = null;
+    }
+
 
     void HandleWallPreview()
     {
@@ -124,25 +177,6 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
-    public void Build()
-    {
-        if (Time.time - lastBuildTime < buildCooldown) return;
-        lastBuildTime = Time.time;
-
-        if (currentMode == BuildMode.Wall) { HandleWallClick(); return; }
-
-        if (selectedBuild == null || currentBuilding == null) return;
-        if (!GridManager.Instance.CanBuild(currentGridPos, rotatedSize)) { CancelBuild(); return; }
-
-        GridManager.Instance.PlaceBuilding(currentGridPos, rotatedSize);
-        Building building = selectedBuild.GetComponent<Building>();
-        building.gridOrigin = currentGridPos;
-        building.gridSize = rotatedSize;
-        building.StartConstruction();
-        placedBuildings.Add(building);
-        selectedBuild = null;
-        ExitBuildMode();
-    }
 
     void HandleWallClick()
     {
@@ -209,10 +243,8 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
-    // Evita que se creen dos torres en el mismo sitio
     void TryPlaceTower(Vector2Int origin, Vector2Int direction)
     {
-        // Miramos la celda central del área 3x3 para ver si ya hay algo
         Vector2Int centerCell = origin + new Vector2Int(1, 1);
         if (!GridManager.Instance.GetCell(centerCell.x, centerCell.y).occupied)
         {
@@ -247,31 +279,9 @@ public class BuildingManager : MonoBehaviour
         b.StartConstruction();
         placedBuildings.Add(b);
     }
+#endregion
 
-    public void CancelBuild()
-    {
-        ClearWallPreviews();
-        if (selectedBuild != null) Destroy(selectedBuild);
-        wallStartPos = null;
-        ExitBuildMode();
-    }
-
-    void ExitBuildMode()
-    {
-        _isBuildingMode = false;
-        gridHighlight.SetVisible(false);
-        ClearWallPreviews(); 
-        foreach (var b in placedBuildings) if (b != null) b.SetPreviewMode(false);
-    }
-
-    public void RotateBuilding()
-    {
-        if (currentMode != BuildMode.Normal || selectedBuild == null) return;
-        rotation = (rotation + 90) % 360;
-        selectedBuild.transform.rotation = Quaternion.Euler(0, rotation, 0);
-        rotatedSize = new Vector2Int(rotatedSize.y, rotatedSize.x);
-    }
-
+#region EditMode Methods
     public void SelectBuilding()
     {
         if (EventSystem.current.IsPointerOverGameObject()) return;
@@ -284,7 +294,6 @@ public class BuildingManager : MonoBehaviour
                 if (building.data == wallTowerData)
                 {
                     StartWallBuilding();
-                    // Al seleccionar para muro, usamos su origen base
                     wallStartPos = building.gridOrigin;
                 }
                 else SetSelected(building);
@@ -292,19 +301,6 @@ public class BuildingManager : MonoBehaviour
         }
         else Deselect();
     }
-
-    void SetSelected(Building building)
-    {
-        if (selectedBuilding != null) Deselect();
-        selectedBuilding = building;
-        UIManager.Instance.EnableEditMode();
-    }
-
-    void Deselect() 
-    { 
-        selectedBuilding = null; UIManager.Instance.DisableEditMode(); 
-    }
-
     public void ReRotateBuilding()
     {
         if (selectedBuilding == null || selectedBuilding.data.name == "Wall" || selectedBuilding.data.name == "Tower") return;
@@ -322,7 +318,30 @@ public class BuildingManager : MonoBehaviour
         GridManager.Instance.PlaceBuilding(origin, newSize);
     }
 
+    void SetSelected(Building building)
+    {
+        if (selectedBuilding != null) Deselect();
+        ToggleBuildingMode(false);
+        selectedBuilding = building;
+        UIManager.Instance.EnableEditMode();
+    }
+
+    void Deselect() 
+    { 
+        selectedBuilding = null; 
+        if (!_buildingMode)
+        {
+            UIManager.Instance.DisableEditMode();
+        }
+    }
+#endregion
+
 #region Auxiliar Methods
+    public void ToggleBuildingMode(bool value)
+    {
+        _buildingMode = value;
+    }
+
     void ShowWallPreviewLine(Vector2Int start, Vector2Int end)
     {
         Vector2Int diff = end - start;

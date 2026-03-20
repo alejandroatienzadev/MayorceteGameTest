@@ -32,9 +32,9 @@ public class PlayerController : MonoBehaviour, IPlayerActions
             
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                if (BuildingManager.Instance.IsBuildingMode)
+                if (BuildingManager.Instance.IsBuilding)
                 {
-                    BuildingManager.Instance.Build();    
+                    BuildingManager.Instance.Build();
                 }
                 else
                 {
@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour, IPlayerActions
 
     public void OnCancelBuild(InputAction.CallbackContext context)
     {
-        if (context.performed && BuildingManager.Instance.IsBuildingMode)
+        if (context.performed && BuildingManager.Instance.IsBuilding)
         {
             Debug.Log("Cancelado");
             BuildingManager.Instance.CancelBuild();
@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour, IPlayerActions
 
     public void OnRotateBuilding(InputAction.CallbackContext contex)
     {
-        if (contex.performed && BuildingManager.Instance.IsBuildingMode)
+        if (contex.performed && BuildingManager.Instance.IsBuilding)
         {
             BuildingManager.Instance.RotateBuilding();
         }
