@@ -124,8 +124,8 @@ GameObject:
   - component: {fileID: 2921233950543442237}
   - component: {fileID: 904822228484573626}
   - component: {fileID: 2537075178436294444}
-  - component: {fileID: 3731588491980841644}
-  m_Layer: 0
+  - component: {fileID: 8044736397405315930}
+  m_Layer: 7
   m_Name: QuarryLvl1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -207,8 +207,8 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &3731588491980841644
-MeshCollider:
+--- !u!65 &8044736397405315930
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -225,10 +225,9 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3009320596949165130, guid: 522776d171d36bb468befd39f5bfcc67, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 9.4, y: 5.0569654, z: 8.825002}
+  m_Center: {x: 0, y: 2.5284808, z: 0.28749895}
 --- !u!1 &9173245561777155182
 GameObject:
   m_ObjectHideFlags: 0

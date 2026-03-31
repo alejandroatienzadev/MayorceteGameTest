@@ -124,8 +124,8 @@ GameObject:
   - component: {fileID: 1180858216531102008}
   - component: {fileID: 1483340543885401421}
   - component: {fileID: 2148849172788661691}
-  - component: {fileID: 4055843936940827107}
-  m_Layer: 0
+  - component: {fileID: 4524455487577400278}
+  m_Layer: 7
   m_Name: SawmillLvl1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -207,8 +207,8 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4055843936940827107
-MeshCollider:
+--- !u!65 &4524455487577400278
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -225,10 +225,9 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -8293099687455065301, guid: 69b97236e1bb8fc42bdf5ca5b65d190a, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 12.240307, y: 5.8196764, z: 12.257965}
+  m_Center: {x: 0, y: 2.9098296, z: 0.008828878}
 --- !u!1 &7597069086389675670
 GameObject:
   m_ObjectHideFlags: 0

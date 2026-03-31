@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7882695442665312747}
   - component: {fileID: 8317537143140981173}
   - component: {fileID: 7527479204902549990}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GoldmIneLvl2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

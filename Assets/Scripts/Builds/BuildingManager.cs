@@ -7,6 +7,7 @@ public class BuildingManager : MonoBehaviour
     [Header("LayerMasks")]
     public LayerMask groundLayer;
     public LayerMask buildingLayer;
+    public LayerMask towerLayer;
 
     private BuildingData currentBuilding;
 
@@ -112,6 +113,10 @@ public class BuildingManager : MonoBehaviour
         building.gridOrigin = currentGridPos;
         building.gridSize = rotatedSize;
         building.StartConstruction();
+        
+        // Al construir, nos aseguramos de que el objeto final sea seleccionable
+        SetupBuildingCollider(selectedBuild);
+
         placedBuildings.Add(building);
         selectedBuild = null;
         ExitBuildMode();
@@ -152,11 +157,9 @@ public class BuildingManager : MonoBehaviour
         wallStartPos = null;
     }
 
-
     void HandleWallPreview()
     {
          Ray ray = Camera.main.ScreenPointToRay(controller.mousePosition);
-        // Incluimos buildingLayer para que el preview también sepa si estamos sobre una torre
         if (Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayer | buildingLayer))
         {
             Vector2Int hoveredGrid;
@@ -181,13 +184,11 @@ public class BuildingManager : MonoBehaviour
     void HandleWallClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(controller.mousePosition);
-        // Detectar tanto suelo como edificios existentes
         if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayer | buildingLayer)) return;
 
         Vector2Int gridPos;
         Building existingBuilding = hit.collider.GetComponentInParent<Building>();
 
-        // Si clicamos en una torre, usamos su origen real para alinear el muro
         if (existingBuilding != null && existingBuilding.data == wallTowerData)
             gridPos = existingBuilding.gridOrigin;
         else
@@ -221,11 +222,10 @@ public class BuildingManager : MonoBehaviour
         int step = horizontal ? System.Math.Sign(correctedEnd.x - start.x) : System.Math.Sign(correctedEnd.y - start.y);
         int totalCells = horizontal ? Mathf.Abs(correctedEnd.x - start.x) : Mathf.Abs(correctedEnd.y - start.y);
 
-        // Intentar colocar torres en los extremos (solo si no existen)
         TryPlaceTower(start, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
         TryPlaceTower(correctedEnd, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
 
-        int centerOffset = 1; 
+        int centerOffset = 0; 
 
         for (int i = 1; i < totalCells; i++)
         {
@@ -236,7 +236,6 @@ public class BuildingManager : MonoBehaviour
             else
                 currentGridCell = new Vector2Int(start.x + centerOffset, start.y + (step * i));
             
-            // Si la celda ya está ocupada (por una torre o muro), saltamos
             if (GridManager.Instance.GetCell(currentGridCell.x, currentGridCell.y).occupied) continue;
 
             PlaceSingle(wallSegmentData, currentGridCell, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
@@ -275,6 +274,9 @@ public class BuildingManager : MonoBehaviour
         obj.transform.position = worldPos + centerOffset;
         obj.transform.rotation = shouldRotate ? Quaternion.Euler(0, 90, 0) : Quaternion.identity;
 
+        // --- NUEVO: Configurar Collider para el objeto final ---
+        SetupBuildingCollider(obj);
+
         GridManager.Instance.PlaceBuilding(origin, size);
         b.StartConstruction();
         placedBuildings.Add(b);
@@ -291,16 +293,23 @@ public class BuildingManager : MonoBehaviour
             Building building = hit.collider.GetComponentInParent<Building>();
             if (building != null) 
             {
-                if (building.data == wallTowerData)
-                {
-                    StartWallBuilding();
-                    wallStartPos = building.gridOrigin;
-                }
-                else SetSelected(building);
+                SetSelected(building);
+            }
+        }else if(Physics.Raycast(ray, out RaycastHit hit2, 1000f, towerLayer))
+        {
+            Building building = hit2.collider.GetComponentInParent<Building>();
+            if (building != null) 
+            {
+                StartWallBuilding();
+                wallStartPos = building.gridOrigin;
             }
         }
-        else Deselect();
+        else
+        {
+            Deselect();
+        }
     }
+
     public void ReRotateBuilding()
     {
         if (selectedBuilding == null || selectedBuilding.data.name == "Wall" || selectedBuilding.data.name == "Tower") return;
@@ -334,9 +343,33 @@ public class BuildingManager : MonoBehaviour
             UIManager.Instance.DisableEditMode();
         }
     }
+
+    public void UpgradeBuilding()
+    {
+        selectedBuilding.Upgrade();
+    }
 #endregion
 
 #region Auxiliar Methods
+
+    private void SetupBuildingCollider(GameObject buildingContainer)
+    {
+        Transform modelTransform = buildingContainer.transform.Find("Model");
+        if (modelTransform != null && modelTransform.childCount > 0)
+        {
+            GameObject visualModel = modelTransform.GetChild(0).gameObject;
+            
+            // CORRECCIÓN: Convertimos el LayerMask (bitmask) al índice de capa (0-31)
+            int layerIndex = (int)Mathf.Log(buildingLayer.value, 2);
+            visualModel.layer = layerIndex;
+            
+            if (visualModel.GetComponent<Collider>() == null)
+            {
+                visualModel.AddComponent<BoxCollider>();
+            }
+        }
+    }
+
     public void ToggleBuildingMode(bool value)
     {
         _buildingMode = value;
@@ -354,17 +387,17 @@ public class BuildingManager : MonoBehaviour
         int step = horizontal ? System.Math.Sign(correctedEnd.x - start.x) : System.Math.Sign(correctedEnd.y - start.y);
         int totalCells = horizontal ? Mathf.Abs(correctedEnd.x - start.x) : Mathf.Abs(correctedEnd.y - start.y);
 
-        int centerOffset = 1;
+        int centerOffset = 0;
 
         for (int i = 0; i <= totalCells; i++)
         {
             Vector2Int currentGridCell;
             bool isEdge = (i == 0 || i == totalCells);
 
-            if (isEdge)
-                currentGridCell = horizontal ? new Vector2Int(start.x + (step * i), start.y) : new Vector2Int(start.x, start.y + (step * i));
+            if (horizontal)
+                currentGridCell = new Vector2Int(start.x + (step * i), start.y + centerOffset);
             else
-                currentGridCell = horizontal ? new Vector2Int(start.x + (step * i), start.y + centerOffset) : new Vector2Int(start.x + centerOffset, start.y + (step * i));
+                currentGridCell = new Vector2Int(start.x + centerOffset, start.y + (step * i));
                 
             ShowPreviewSingle(isEdge ? wallTowerData : wallSegmentData, currentGridCell, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
         }
@@ -382,6 +415,11 @@ public class BuildingManager : MonoBehaviour
         Building b = preview.GetComponent<Building>();
         b.Initialize(data);
         b.SetPreviewMode(true);
+
+        // Desactivamos colliders en el preview para que no interfieran con el Raycast del ratón
+        Collider[] colliders = preview.GetComponentsInChildren<Collider>();
+        foreach (var c in colliders) c.enabled = false;
+
         float cellSize = GridManager.Instance.cellSize;
         Vector3 worldPos = GridManager.Instance.GridToWorld(origin); 
         Vector3 centerOffset = new Vector3(size.x * cellSize / 2f, 0, size.y * cellSize / 2f);

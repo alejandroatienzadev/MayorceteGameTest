@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Tower
   icon: {fileID: 0}
-  size: {x: 3, y: 3}
+  size: {x: 1, y: 1}
   resourceProduced: 3
   dustRadius: 2
   levels:

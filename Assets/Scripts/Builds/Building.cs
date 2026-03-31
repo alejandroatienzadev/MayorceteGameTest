@@ -67,7 +67,7 @@ public class Building : MonoBehaviour, IDamageable
     /// </summary>
     public void Initialize(BuildingData buildingData)
     {
-        this.data = buildingData;
+        data = buildingData;
         currentLevel = 0;
         
         if (CurrentLevelData != null)
@@ -76,7 +76,7 @@ public class Building : MonoBehaviour, IDamageable
             ApplyLevelStats();
             ApplyLevelVisual();
             
-            this.gameObject.name = data.name;
+            gameObject.name = data.name;
 
             productionCounter = productionTime;
         }
@@ -99,6 +99,7 @@ public class Building : MonoBehaviour, IDamageable
             }
 
             if (progressUI != null)
+                progressUI.fillImage.gameObject.SetActive(true);
                 progressUI.SetProgress(elapsedTime, totalTime);
 
             if (buildTimer <= 0)
