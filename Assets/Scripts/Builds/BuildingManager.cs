@@ -180,7 +180,6 @@ public class BuildingManager : MonoBehaviour
         }
     }
 
-
     void HandleWallClick()
     {
         Ray ray = Camera.main.ScreenPointToRay(controller.mousePosition);
@@ -212,36 +211,21 @@ public class BuildingManager : MonoBehaviour
     {
         ClearWallPreviews(); 
 
-        Vector2Int diff = end - start;
-        Vector2Int correctedEnd = end;
-        bool horizontal = Mathf.Abs(diff.x) > Mathf.Abs(diff.y);
-        
-        if (horizontal) correctedEnd.y = start.y;
-        else correctedEnd.x = start.x;
+        TryPlaceTower(start, Vector2Int.zero);
+        TryPlaceTower(end, Vector2Int.zero);
 
-        int step = horizontal ? System.Math.Sign(correctedEnd.x - start.x) : System.Math.Sign(correctedEnd.y - start.y);
-        int totalCells = horizontal ? Mathf.Abs(correctedEnd.x - start.x) : Mathf.Abs(correctedEnd.y - start.y);
+        List<Vector2Int> path = GetPath(start, end);
 
-        TryPlaceTower(start, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
-        TryPlaceTower(correctedEnd, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
-
-        int centerOffset = 0; 
-
-        for (int i = 1; i < totalCells; i++)
+        for (int i = 0; i < path.Count; i++)
         {
-            Vector2Int currentGridCell;
-            
-            if (horizontal)
-                currentGridCell = new Vector2Int(start.x + (step * i), start.y + centerOffset);
-            else
-                currentGridCell = new Vector2Int(start.x + centerOffset, start.y + (step * i));
-            
-            if (GridManager.Instance.GetCell(currentGridCell.x, currentGridCell.y).occupied) continue;
+            Vector2Int currentCell = path[i];
+            Vector2Int nextCell = (i < path.Count - 1) ? path[i + 1] : end;
+            Vector2Int dir = nextCell - currentCell;
 
-            PlaceSingle(wallSegmentData, currentGridCell, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
+            PlaceSingle(wallSegmentData, currentCell, dir);
         }
     }
-
+    
     void TryPlaceTower(Vector2Int origin, Vector2Int direction)
     {
         Vector2Int centerCell = origin + new Vector2Int(1, 1);
@@ -351,6 +335,36 @@ public class BuildingManager : MonoBehaviour
 #endregion
 
 #region Auxiliar Methods
+    private List<Vector2Int> GetPath(Vector2Int start, Vector2Int end)
+    {
+        List<Vector2Int> path = new List<Vector2Int>();
+        Vector2Int current = start;
+
+        int stepX = System.Math.Sign(end.x - start.x);
+        int stepY = System.Math.Sign(end.y - start.y);
+
+        while (current != end)
+        {
+            int distX = Mathf.Abs(end.x - current.x);
+            int distY = Mathf.Abs(end.y - current.y);
+
+            if (distX >= distY && distX > 0)
+            {
+                current.x += stepX;
+            }
+            else if (distY > 0)
+            {
+                current.y += stepY;
+            }
+
+            if (current != end)
+            {
+                path.Add(current);
+            }
+        }
+
+        return path;
+    }
 
     private void SetupBuildingCollider(GameObject buildingContainer)
     {
@@ -377,29 +391,14 @@ public class BuildingManager : MonoBehaviour
 
     void ShowWallPreviewLine(Vector2Int start, Vector2Int end)
     {
-        Vector2Int diff = end - start;
-        Vector2Int correctedEnd = end;
-        bool horizontal = Mathf.Abs(diff.x) > Mathf.Abs(diff.y);
-        
-        if (horizontal) correctedEnd.y = start.y;
-        else correctedEnd.x = start.x;
+        ShowPreviewSingle(wallTowerData, start, Vector2Int.up);
+        ShowPreviewSingle(wallTowerData, end, Vector2Int.up);
 
-        int step = horizontal ? System.Math.Sign(correctedEnd.x - start.x) : System.Math.Sign(correctedEnd.y - start.y);
-        int totalCells = horizontal ? Mathf.Abs(correctedEnd.x - start.x) : Mathf.Abs(correctedEnd.y - start.y);
+        List<Vector2Int> path = GetPath(start, end);
 
-        int centerOffset = 0;
-
-        for (int i = 0; i <= totalCells; i++)
+        foreach (Vector2Int cell in path)
         {
-            Vector2Int currentGridCell;
-            bool isEdge = (i == 0 || i == totalCells);
-
-            if (horizontal)
-                currentGridCell = new Vector2Int(start.x + (step * i), start.y + centerOffset);
-            else
-                currentGridCell = new Vector2Int(start.x + centerOffset, start.y + (step * i));
-                
-            ShowPreviewSingle(isEdge ? wallTowerData : wallSegmentData, currentGridCell, horizontal ? new Vector2Int(step, 0) : new Vector2Int(0, step));
+            ShowPreviewSingle(wallSegmentData, cell, Vector2Int.up); 
         }
     }
 
