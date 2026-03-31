@@ -120,9 +120,6 @@ public class GridManager : MonoBehaviour
         int originX = center.x - (size.x / 2);
         int originZ = center.y - (size.y / 2);
 
-        originX = Mathf.Clamp(originX, 0, gridWidth - size.x);
-        originZ = Mathf.Clamp(originZ, 0, gridHeight - size.y);
-
         return new Vector2Int(originX, originZ);
     }
 
