@@ -211,9 +211,15 @@ public class GridManager : MonoBehaviour
     {
         for (int x = 0; x < size.x; x++)
         {
-            for (int z = 0; z < size.y; z++)
+            for (int y = 0; y < size.y; y++)
             {
-                grid[origin.x + x, origin.y + z].occupied = false;
+                int cellX = origin.x + x;
+                int cellY = origin.y + y;
+
+                if (IsInsideGrid(new Vector2Int(cellX, cellY)))
+                {
+                    grid[cellX, cellY].occupied = false;
+                }
             }
         }
     }
