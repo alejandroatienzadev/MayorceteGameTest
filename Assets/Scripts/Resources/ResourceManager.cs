@@ -87,4 +87,11 @@ public class ResourceManager : MonoBehaviour
         currentGold -= goldCost;
         OnResourcesChanged?.Invoke(currentWood, currentStone, currentGold);
     }
+    public void GetResources(float wood, float stone, float gold)
+    {
+        currentWood += wood;
+        currentStone += stone;
+        currentGold += gold;
+        OnResourcesChanged?.Invoke(currentWood, currentStone, currentGold);
+    }
 }

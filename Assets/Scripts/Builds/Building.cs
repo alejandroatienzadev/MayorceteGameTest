@@ -19,14 +19,17 @@ public class Building : MonoBehaviour, IDamageable
     public Material normalMaterial;
     public Material previewMaterial;
     public VisualEffect dustVFX;
+    private MaterialPropertyBlock propBlock;
 
     [Header("DEBUG Info")]
     [SerializeField] private float productionTime;
     [SerializeField] private int productionAmount;
     [SerializeField] private int currentLevel = 0;
     public int buildingLevel;
+    public float woodWasted;
+    public float stoneWasted;
+    public float goldWasted;
 
-    private MaterialPropertyBlock propBlock;
     private float productionCounter;
     private float buildTimer;
     private bool isUnderConstruction;
@@ -134,6 +137,9 @@ public class Building : MonoBehaviour, IDamageable
             dustVFX.SetFloat("CircleRadius", data.dustRadius);
             dustVFX.Play();
         }
+        woodWasted += CurrentLevelData.woodCost;
+        stoneWasted += CurrentLevelData.stoneCost;
+        goldWasted += CurrentLevelData.goldCost;
         ResourceManager.Instance.SpendResources(CurrentLevelData.woodCost, CurrentLevelData.stoneCost, CurrentLevelData.goldCost);
     }
 
@@ -155,7 +161,7 @@ public class Building : MonoBehaviour, IDamageable
         {
             dustVFX.Stop();
         }
-        ResourceManager.Instance.UpdateResources(data.resourceProduced, CurrentLevelData.productionAmount);
+        ResourceManager.Instance.UpdateResources(data.resourceType, CurrentLevelData.productionAmount);
     }
 
     [ContextMenu("Upgrade")]
@@ -164,7 +170,7 @@ public class Building : MonoBehaviour, IDamageable
         if (isUnderConstruction || data == null) return;
         if (currentLevel >= data.levels.Length - 1) return;
 
-        ResourceManager.Instance.UpdateResources(data.resourceProduced, -CurrentLevelData.productionAmount);
+        ResourceManager.Instance.UpdateResources(data.resourceType, -CurrentLevelData.productionAmount);
 
         BuildingLevel nextLevel = data.levels[currentLevel + 1];
 

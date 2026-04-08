@@ -7,7 +7,7 @@ public class BuildingData : ScriptableObject
     public Sprite icon;
 
     public Vector2Int size;
-    public ResourceType resourceProduced;
+    public ResourceType resourceType;
     public float dustRadius;
 
     public BuildingLevel[] levels;

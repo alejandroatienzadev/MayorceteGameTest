@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using System;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class BuildingManager : MonoBehaviour
     private Vector2Int rotatedSize;
     
     public GridCellHighlight gridHighlight;
-    private List<Building> placedBuildings = new List<Building>();
+    public List<Building> placedBuildings = new List<Building>();
 
     [SerializeField] private Building selectedBuilding;
 
@@ -331,6 +332,31 @@ public class BuildingManager : MonoBehaviour
     public void UpgradeBuilding()
     {
         selectedBuilding.Upgrade();
+    }
+
+    public void DestroyBuilding()
+    {
+        if (selectedBuilding == null) return;
+
+        GridManager.Instance.RemoveBuilding(selectedBuilding.gridOrigin, selectedBuilding.gridSize);
+
+        float woodToAdd = selectedBuilding.woodWasted / 2;
+        float stoneToAdd = selectedBuilding.stoneWasted / 2;
+        float goldToAdd = selectedBuilding.goldWasted / 2;
+        
+        if (ResourceManager.Instance != null && selectedBuilding.data != null)
+        {
+            ResourceManager.Instance.UpdateResources(selectedBuilding.data.resourceType, -selectedBuilding.CurrentLevelData.productionAmount);
+            ResourceManager.Instance.GetResources(woodToAdd, stoneToAdd, goldToAdd);
+        }
+
+        if (placedBuildings.Contains(selectedBuilding))
+        {
+            placedBuildings.Remove(selectedBuilding);
+        }
+
+        Destroy(selectedBuilding.gameObject);
+        Deselect();
     }
 #endregion
 
