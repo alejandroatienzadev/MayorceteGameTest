@@ -10,9 +10,6 @@ public class BuildingLevel
     public int goldCost;
 
     public float buildTime;
-
-    public float productionTime;
     public int productionAmount;
-
     public GameObject modelPrefab;
 }

@@ -8,6 +8,11 @@ public class ResourceManager : MonoBehaviour
     public float currentWood;
     public float currentStone;
     public float currentGold;
+    public float timeToUpdateResources = 5;
+    float timeToUpdateResourcesCounter;
+    public float currentWoodToAdd = 0;
+    public float currentStoneToAdd = 0;
+    public float currentGoldToAdd = 0;
 
     [SerializeField] private UIManager resourceUI;
 
@@ -31,26 +36,48 @@ public class ResourceManager : MonoBehaviour
 
     void Start()
     {
+        timeToUpdateResourcesCounter = timeToUpdateResources;
         OnResourcesChanged?.Invoke(currentWood, currentStone, currentGold);
     }
 
-    public void AddResource(ResourceType type, float amount)
+    void Update()
+    {
+        if (timeToUpdateResourcesCounter > 0)
+        {
+            timeToUpdateResourcesCounter -= Time.deltaTime;
+        }
+
+        if (timeToUpdateResourcesCounter < 0)
+        {
+            AddResources();
+        }
+    }
+
+    public void UpdateResources(ResourceType type, float amount)
     {
         switch (type)
         {
             case ResourceType.Wood:
-                currentWood += amount;
+                currentWoodToAdd += amount;
                 break;
 
             case ResourceType.Stone:
-                currentStone += amount;
+                currentStoneToAdd += amount;
                 break;
 
             case ResourceType.Gold:
-                currentGold += amount;
+                currentGoldToAdd += amount;
                 break;
         }
+    }
+
+    public void AddResources()
+    {
+        currentWood += currentWoodToAdd;
+        currentStone += currentStoneToAdd;
+        currentGold += currentGoldToAdd;
         OnResourcesChanged?.Invoke(currentWood, currentStone, currentGold);
+        timeToUpdateResourcesCounter = timeToUpdateResources;
     }
 
     public void SpendResources(float woodCost, float stoneCost, float goldCost)

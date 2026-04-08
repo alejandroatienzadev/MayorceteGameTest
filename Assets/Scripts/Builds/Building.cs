@@ -109,22 +109,6 @@ public class Building : MonoBehaviour, IDamageable
 
             return;
         }
-
-        if (!isBuilded) return;
-
-        productionCounter -= Time.deltaTime;
-        if (productionCounter <= 0)
-        {
-            GenerateResources();
-            productionCounter = productionTime;
-        }
-    }
-
-    void GenerateResources()
-    {
-        if (data == null) return;
-        ResourceManager.Instance.AddResource(data.resourceProduced, productionAmount);
-        Debug.Log($"Generados {productionAmount} de {data.resourceProduced}");
     }
 
 #region Upgrade & Build System
@@ -171,6 +155,7 @@ public class Building : MonoBehaviour, IDamageable
         {
             dustVFX.Stop();
         }
+        ResourceManager.Instance.UpdateResources(data.resourceProduced, CurrentLevelData.productionAmount);
     }
 
     [ContextMenu("Upgrade")]
@@ -178,6 +163,8 @@ public class Building : MonoBehaviour, IDamageable
     {
         if (isUnderConstruction || data == null) return;
         if (currentLevel >= data.levels.Length - 1) return;
+
+        ResourceManager.Instance.UpdateResources(data.resourceProduced, -CurrentLevelData.productionAmount);
 
         BuildingLevel nextLevel = data.levels[currentLevel + 1];
 
@@ -194,7 +181,6 @@ public class Building : MonoBehaviour, IDamageable
     {
         if (CurrentLevelData == null) return;
         productionAmount = CurrentLevelData.productionAmount;
-        productionTime = CurrentLevelData.productionTime;
     }
 
     bool HasResources(BuildingLevel level)
