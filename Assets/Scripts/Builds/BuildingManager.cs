@@ -432,23 +432,30 @@ public class BuildingManager : MonoBehaviour
 
         while (true)
         {
-            if (!(x == start.x && y == start.y) && !(x == end.x && y == end.y))
-            {
-                path.Add(new Vector2Int(x, y));
-            }
             if (x == end.x && y == end.y) break;
 
-            int e2 = 2 * err;
+            int e2 = 2 * err;            
+            int oldX = x;
+            int oldY = y;
+
             if (e2 > -dy)
             {
                 err -= dy;
                 x += sx;
             }
+
             if (e2 < dx)
             {
+                if (oldX != x) 
+                {
+                    Vector2Int intermediate = new Vector2Int(x, oldY);
+                    if (intermediate != end) path.Add(intermediate);
+                }
                 err += dx;
                 y += sy;
             }
+            if (x == end.x && y == end.y) break;
+            path.Add(new Vector2Int(x, y));
         }
 
         return path;
@@ -478,21 +485,33 @@ public class BuildingManager : MonoBehaviour
     
     void ShowWallPreviewLine(Vector2Int start, Vector2Int end)
     {
-        ShowPreviewSingle(wallTowerData, start, Vector2Int.zero); // Torre inicial
+        ClearWallPreviews();
 
+        // 1. Torre Inicial
+        ShowPreviewSingle(wallTowerData, start, Vector2Int.zero);
+
+        // 2. Obtener el camino con pasos intermedios (zig-zag)
         List<Vector2Int> path = GetPath(start, end);
 
         for (int i = 0; i < path.Count; i++)
         {
             Vector2Int currentCell = path[i];
-            // Importante: El muro debe mirar hacia el siguiente punto (el siguiente en la lista o el final)
-            Vector2Int nextPoint = (i < path.Count - 1) ? path[i + 1] : end;
-            Vector2Int direction = nextPoint - currentCell;
+            
+            // La dirección ahora siempre será ortogonal (arriba, abajo, izquierda o derecha)
+            Vector2Int prevPoint = (i == 0) ? start : path[i - 1];
+            Vector2Int direction = currentCell - prevPoint;
 
-            ShowPreviewSingle(wallSegmentData, currentCell, direction); 
+            // Si por alguna razón el punto coincide con el final, se omite para poner la torre
+            if (currentCell == end) continue;
+
+            ShowPreviewSingle(wallSegmentData, currentCell, direction);
         }
 
-        ShowPreviewSingle(wallTowerData, end, Vector2Int.zero); // Torre final
+        // 3. Torre Final
+        if (start != end)
+        {
+            ShowPreviewSingle(wallTowerData, end, Vector2Int.zero);
+        }
     }
 
     void ShowPreviewSingle(BuildingData data, Vector2Int pos, Vector2Int direction)
