@@ -15,7 +15,7 @@ MonoBehaviour:
   buildingName: GoldMine
   icon: {fileID: 0}
   size: {x: 1, y: 2}
-  resourceProduced: 2
+  resourceType: 2
   dustRadius: 1
   levels:
   - level: 1
@@ -23,7 +23,6 @@ MonoBehaviour:
     stoneCost: 4
     goldCost: 0
     buildTime: 3
-    productionTime: 2
     productionAmount: 10
     modelPrefab: {fileID: 2924753562376323422, guid: 3fc28bc3e601f6f429253fe88fe3557e, type: 3}
   - level: 2
@@ -31,7 +30,6 @@ MonoBehaviour:
     stoneCost: 10
     goldCost: 0
     buildTime: 3
-    productionTime: 1
     productionAmount: 15
     modelPrefab: {fileID: 703885174619851910, guid: c3684f7201fa14944b4405e0cbbfd8c3, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}

@@ -15,7 +15,7 @@ MonoBehaviour:
   buildingName: Quarry
   icon: {fileID: 0}
   size: {x: 2, y: 2}
-  resourceProduced: 1
+  resourceType: 1
   dustRadius: 2
   levels:
   - level: 1
@@ -23,7 +23,6 @@ MonoBehaviour:
     stoneCost: 4
     goldCost: 0
     buildTime: 5
-    productionTime: 2
     productionAmount: 10
     modelPrefab: {fileID: 7481493542317378445, guid: 2cc505dc7481e8b438fee6249ba48916, type: 3}
   - level: 2
@@ -31,7 +30,6 @@ MonoBehaviour:
     stoneCost: 10
     goldCost: 0
     buildTime: 1
-    productionTime: 1
     productionAmount: 15
     modelPrefab: {fileID: 7269352113077621492, guid: 695027d97c96ebb428210d75f82de035, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}

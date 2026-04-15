@@ -15,7 +15,7 @@ MonoBehaviour:
   buildingName: Wall
   icon: {fileID: 0}
   size: {x: 1, y: 1}
-  resourceProduced: 3
+  resourceType: 3
   dustRadius: 2
   levels:
   - level: 1
@@ -23,7 +23,6 @@ MonoBehaviour:
     stoneCost: 0
     goldCost: 0
     buildTime: 0
-    productionTime: 0
     productionAmount: 0
     modelPrefab: {fileID: 4731254139050398557, guid: 3b1ce7c90a565cd469fc6ab1d1e5e5ea, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}
