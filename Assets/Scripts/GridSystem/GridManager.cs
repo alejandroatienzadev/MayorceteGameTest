@@ -144,7 +144,7 @@ public class GridManager : MonoBehaviour
         return true;
     }
 
-    public void PlaceBuilding(Vector2Int origin, Vector2Int size)
+    public void PlaceBuilding(Vector2Int origin, Vector2Int size, Building building = null)
     {
         for (int x = 0; x < size.x; x++)
         {
@@ -152,8 +152,8 @@ public class GridManager : MonoBehaviour
             {
                 int cellX = origin.x + x;
                 int cellZ = origin.y + z;
-
                 grid[cellX, cellZ].occupied = true;
+                grid[cellX, cellZ].placedBuilding = building;
             }
         }
     }
@@ -213,12 +213,10 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < size.y; y++)
             {
-                int cellX = origin.x + x;
-                int cellY = origin.y + y;
-
-                if (IsInsideGrid(new Vector2Int(cellX, cellY)))
+                if (IsInsideGrid(new Vector2Int(origin.x + x, origin.y + y)))
                 {
-                    grid[cellX, cellY].occupied = false;
+                    grid[origin.x + x, origin.y + y].occupied = false;
+                    grid[origin.x + x, origin.y + y].placedBuilding = null;
                 }
             }
         }

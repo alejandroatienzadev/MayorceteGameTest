@@ -6209,6 +6209,7 @@ MonoBehaviour:
   selectedBuilding: {fileID: 0}
   wallTowerData: {fileID: 11400000, guid: 91d2bf9f465db07498219f661859540c, type: 2}
   wallSegmentData: {fileID: 11400000, guid: 0bb1a7a10c746384bbfe55f932ee77a6, type: 2}
+  doorData: {fileID: 11400000, guid: bb3c6855720d1d24cb096ea9078fb911, type: 2}
 --- !u!4 &2137981292
 Transform:
   m_ObjectHideFlags: 0

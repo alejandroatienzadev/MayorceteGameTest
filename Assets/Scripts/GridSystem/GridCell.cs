@@ -6,6 +6,7 @@ public class GridCell
     public bool occupied = false;
 
     public Vector3 worldPosition;
+    public Building placedBuilding;
 
     public GridCell(Vector3 pos)
     {

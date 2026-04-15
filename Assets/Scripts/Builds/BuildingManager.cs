@@ -48,6 +48,7 @@ public class BuildingManager : MonoBehaviour
     [Header("Wall System")]
     [SerializeField] private BuildingData wallTowerData;
     [SerializeField] private BuildingData wallSegmentData;
+    [SerializeField] private BuildingData doorData;
     private Vector2Int? wallStartPos = null;
 
 #region Unity Methods
@@ -93,12 +94,15 @@ public class BuildingManager : MonoBehaviour
             Vector3 worldPos = GridManager.Instance.GridToWorld(currentGridPos);
             Vector3 offset = new Vector3(rotatedSize.x * GridManager.Instance.cellSize / 2f, 0, rotatedSize.y * GridManager.Instance.cellSize / 2f);
             selectedBuild.transform.position = worldPos + offset;
-            bool canBuild = GridManager.Instance.CanBuild(currentGridPos, rotatedSize);
+
+            bool canBuild = CanPlaceDoorHere(currentGridPos, rotatedSize);
+            
             selectedBuild.SetActive(true); 
             selectedBuild.GetComponent<Building>().SetBuildValid(canBuild);
             gridHighlight.ShowBuildArea(currentGridPos, rotatedSize);
         }
     }
+
     public void Build()
     {
         if (Time.time - lastBuildTime < buildCooldown) return;
@@ -107,15 +111,29 @@ public class BuildingManager : MonoBehaviour
         if (currentMode == BuildMode.Wall) { HandleWallClick(); return; }
 
         if (selectedBuild == null || currentBuilding == null) return;
-        if (!GridManager.Instance.CanBuild(currentGridPos, rotatedSize)) { CancelBuild(); return; }
 
-        GridManager.Instance.PlaceBuilding(currentGridPos, rotatedSize);
+        if (!CanPlaceDoorHere(currentGridPos, rotatedSize)) { CancelBuild(); return; }
+
+        if (currentBuilding == doorData)
+        {
+            var cell = GridManager.Instance.GetCell(currentGridPos.x, currentGridPos.y);
+            if (cell != null && cell.occupied && cell.placedBuilding != null && cell.placedBuilding.data == wallSegmentData)
+            {
+                Building wallToDestroy = cell.placedBuilding;
+                GridManager.Instance.RemoveBuilding(wallToDestroy.gridOrigin, wallToDestroy.gridSize);
+                placedBuildings.Remove(wallToDestroy);
+                Destroy(wallToDestroy.gameObject);
+            }
+        }
+
         Building building = selectedBuild.GetComponent<Building>();
+        
+        GridManager.Instance.PlaceBuilding(currentGridPos, rotatedSize, building);
+        
         building.gridOrigin = currentGridPos;
         building.gridSize = rotatedSize;
         building.StartConstruction();
         
-        // Al construir, nos aseguramos de que el objeto final sea seleccionable
         SetupBuildingCollider(selectedBuild);
 
         placedBuildings.Add(building);
@@ -259,13 +277,34 @@ public class BuildingManager : MonoBehaviour
         obj.transform.position = worldPos + centerOffset;
         obj.transform.rotation = shouldRotate ? Quaternion.Euler(0, 90, 0) : Quaternion.identity;
 
-        // --- NUEVO: Configurar Collider para el objeto final ---
         SetupBuildingCollider(obj);
 
-        GridManager.Instance.PlaceBuilding(origin, size);
+        GridManager.Instance.PlaceBuilding(origin, size, b);
+        
         b.StartConstruction();
         placedBuildings.Add(b);
     }
+
+    private bool CanPlaceDoorHere(Vector2Int origin, Vector2Int size)
+    {
+        if (currentBuilding != doorData) return GridManager.Instance.CanBuild(origin, size);
+
+        if (!GridManager.Instance.IsAreaInsideGrid(origin, size)) return false;
+
+        for (int x = 0; x < size.x; x++) {
+            for (int z = 0; z < size.y; z++) {
+                var cell = GridManager.Instance.GetCell(origin.x + x, origin.y + z);
+                if (!cell.buildable) return false;
+                
+                if (cell.occupied) {
+                    if (cell.placedBuilding == null || cell.placedBuilding.data != wallSegmentData) 
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
+
 #endregion
 
 #region EditMode Methods
@@ -309,7 +348,7 @@ public class BuildingManager : MonoBehaviour
         Vector3 worldPos = GridManager.Instance.GridToWorld(origin);
         Vector3 offset = new Vector3(newSize.x * GridManager.Instance.cellSize / 2f, 0, newSize.y * GridManager.Instance.cellSize / 2f);
         selectedBuilding.transform.position = worldPos + offset;
-        GridManager.Instance.PlaceBuilding(origin, newSize);
+        GridManager.Instance.PlaceBuilding(origin, newSize, selectedBuilding);
     }
 
     void SetSelected(Building building)
@@ -399,7 +438,6 @@ public class BuildingManager : MonoBehaviour
         {
             GameObject visualModel = modelTransform.GetChild(0).gameObject;
             
-            // CORRECCIÓN: Convertimos el LayerMask (bitmask) al índice de capa (0-31)
             int layerIndex = (int)Mathf.Log(buildingLayer.value, 2);
             visualModel.layer = layerIndex;
             
@@ -441,7 +479,6 @@ public class BuildingManager : MonoBehaviour
         b.Initialize(data);
         b.SetPreviewMode(true);
 
-        // Desactivamos colliders en el preview para que no interfieran con el Raycast del ratón
         Collider[] colliders = preview.GetComponentsInChildren<Collider>();
         foreach (var c in colliders) c.enabled = false;
 
@@ -451,7 +488,9 @@ public class BuildingManager : MonoBehaviour
         
         preview.transform.position = worldPos + centerOffset;
         preview.transform.rotation = shouldRotate ? Quaternion.Euler(0, 90, 0) : Quaternion.identity;
-        b.SetBuildValid(GridManager.Instance.CanBuild(origin, size));
+        
+        currentBuilding = data;
+        b.SetBuildValid(CanPlaceDoorHere(origin, size));
     }
 
     void ClearWallPreviews()
