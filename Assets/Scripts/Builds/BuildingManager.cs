@@ -403,28 +403,36 @@ public class BuildingManager : MonoBehaviour
     private List<Vector2Int> GetPath(Vector2Int start, Vector2Int end)
     {
         List<Vector2Int> path = new List<Vector2Int>();
-        Vector2Int current = start;
+        
+        int x = start.x;
+        int y = start.y;
 
-        int stepX = System.Math.Sign(end.x - start.x);
-        int stepY = System.Math.Sign(end.y - start.y);
+        int dx = Mathf.Abs(end.x - start.x);
+        int dy = Mathf.Abs(end.y - start.y);
 
-        while (current != end)
+        int sx = (start.x < end.x) ? 1 : -1;
+        int sy = (start.y < end.y) ? 1 : -1;
+
+        int err = dx - dy;
+
+        while (true)
         {
-            int distX = Mathf.Abs(end.x - current.x);
-            int distY = Mathf.Abs(end.y - current.y);
-
-            if (distX >= distY && distX > 0)
+            if (!(x == start.x && y == start.y) && !(x == end.x && y == end.y))
             {
-                current.x += stepX;
+                path.Add(new Vector2Int(x, y));
             }
-            else if (distY > 0)
-            {
-                current.y += stepY;
-            }
+            if (x == end.x && y == end.y) break;
 
-            if (current != end)
+            int e2 = 2 * err;
+            if (e2 > -dy)
             {
-                path.Add(current);
+                err -= dy;
+                x += sx;
+            }
+            if (e2 < dx)
+            {
+                err += dx;
+                y += sy;
             }
         }
 
