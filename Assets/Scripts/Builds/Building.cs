@@ -56,18 +56,6 @@ public class Building : MonoBehaviour, IDamageable
         if (visualRoot == null) visualRoot = transform.Find("Model");
     }
 
-    void Start()
-    {
-        if (dustVFX)
-        {
-            dustVFX.gameObject.SetActive(false);
-        }   
-    }
-
-    /// <summary>
-    /// MÉTODO CLAVE: Llamado por BuildingManager justo después de instanciar.
-    /// Esto evita el NullReferenceException.
-    /// </summary>
     public void Initialize(BuildingData buildingData)
     {
         data = buildingData;
@@ -131,11 +119,12 @@ public class Building : MonoBehaviour, IDamageable
 
         if (progressUI && progressUI.fillImage) progressUI.fillImage.gameObject.SetActive(true);
 
+        dustVFX.gameObject.SetActive(true);
         if (dustVFX)
         {
-            dustVFX.gameObject.SetActive(true);
             dustVFX.SetFloat("CircleRadius", data.dustRadius);
             dustVFX.Play();
+            Debug.Log("Prueba");
         }
         woodWasted += CurrentLevelData.woodCost;
         stoneWasted += CurrentLevelData.stoneCost;

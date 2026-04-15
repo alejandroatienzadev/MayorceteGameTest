@@ -1804,7 +1804,7 @@ Transform:
   m_GameObject: {fileID: 535724815}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 22, y: 0.5, z: 22}
+  m_LocalPosition: {x: 63, y: 0.5, z: -18.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3103,7 +3103,7 @@ GameObject:
   - component: {fileID: 1167350326}
   - component: {fileID: 1167350325}
   m_Layer: 0
-  m_Name: 10x10 grid
+  m_Name: 20x20 grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3131,7 +3131,7 @@ Transform:
   m_GameObject: {fileID: 1167350324}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3474,8 +3474,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a1a78f8bb6627046996ffda533d9820, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridManager
-  gridWidth: 100
-  gridHeight: 100
+  gridWidth: 1000
+  gridHeight: 1000
   cellSize: 2
 --- !u!4 &1257641585
 Transform:
@@ -5718,7 +5718,7 @@ Transform:
   m_GameObject: {fileID: 1986697791}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.51468, y: 0.5, z: 4.08579}
+  m_LocalPosition: {x: 5.51468, y: 0, z: 4.08579}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5753,7 +5753,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 402.67, y: 0.5, z: 402.67}
+  m_LocalScale: {x: 400, y: 1, z: 400}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 68463536}

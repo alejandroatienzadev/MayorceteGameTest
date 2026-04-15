@@ -10,8 +10,7 @@ public class BuildingManager : MonoBehaviour
     public LayerMask buildingLayer;
     public LayerMask towerLayer;
 
-    private BuildingData currentBuilding;
-
+    [SerializeField] private BuildingData currentBuilding;
     [SerializeField] private GameObject selectedBuild;
     [SerializeField] private Transform buildingsContainer;
     [SerializeField] private GameObject buildingContainerPrefab;
@@ -107,22 +106,33 @@ public class BuildingManager : MonoBehaviour
     {
         if (Time.time - lastBuildTime < buildCooldown) return;
         lastBuildTime = Time.time;
-
         if (currentMode == BuildMode.Wall) { HandleWallClick(); return; }
-
         if (selectedBuild == null || currentBuilding == null) return;
-
         if (!CanPlaceDoorHere(currentGridPos, rotatedSize)) { CancelBuild(); return; }
 
         if (currentBuilding == doorData)
         {
-            var cell = GridManager.Instance.GetCell(currentGridPos.x, currentGridPos.y);
-            if (cell != null && cell.occupied && cell.placedBuilding != null && cell.placedBuilding.data == wallSegmentData)
+            List<Building> wallsToRemove = new List<Building>();
+
+            for (int x = 0; x < rotatedSize.x; x++)
             {
-                Building wallToDestroy = cell.placedBuilding;
-                GridManager.Instance.RemoveBuilding(wallToDestroy.gridOrigin, wallToDestroy.gridSize);
-                placedBuildings.Remove(wallToDestroy);
-                Destroy(wallToDestroy.gameObject);
+                for (int z = 0; z < rotatedSize.y; z++)
+                {
+                    var cell = GridManager.Instance.GetCell(currentGridPos.x + x, currentGridPos.y + z);
+                    if (cell != null && cell.occupied && cell.placedBuilding != null)
+                    {
+                        if (cell.placedBuilding.data == wallSegmentData && !wallsToRemove.Contains(cell.placedBuilding))
+                        {
+                            wallsToRemove.Add(cell.placedBuilding);
+                        }
+                    }
+                }
+            }
+            foreach (Building wall in wallsToRemove)
+            {
+                GridManager.Instance.RemoveBuilding(wall.gridOrigin, wall.gridSize);
+                placedBuildings.Remove(wall);
+                Destroy(wall.gameObject);
             }
         }
 
@@ -225,7 +235,12 @@ public class BuildingManager : MonoBehaviour
             ExitBuildMode();
         }
     }
-
+    
+    /// <summary>
+    /// En diagonal
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
     void BuildWall(Vector2Int start, Vector2Int end)
     {
         ClearWallPreviews(); 
@@ -238,13 +253,13 @@ public class BuildingManager : MonoBehaviour
         for (int i = 0; i < path.Count; i++)
         {
             Vector2Int currentCell = path[i];
-            Vector2Int nextCell = (i < path.Count - 1) ? path[i + 1] : end;
-            Vector2Int dir = nextCell - currentCell;
+            Vector2Int nextPoint = (i < path.Count - 1) ? path[i + 1] : end;
+            Vector2Int dir = nextPoint - currentCell;
 
             PlaceSingle(wallSegmentData, currentCell, dir);
         }
     }
-    
+
     void TryPlaceTower(Vector2Int origin, Vector2Int direction)
     {
         Vector2Int centerCell = origin + new Vector2Int(1, 1);
@@ -460,25 +475,38 @@ public class BuildingManager : MonoBehaviour
     {
         _buildingMode = value;
     }
-
+    
     void ShowWallPreviewLine(Vector2Int start, Vector2Int end)
     {
-        ShowPreviewSingle(wallTowerData, start, Vector2Int.up);
-        ShowPreviewSingle(wallTowerData, end, Vector2Int.up);
+        ShowPreviewSingle(wallTowerData, start, Vector2Int.zero); // Torre inicial
 
         List<Vector2Int> path = GetPath(start, end);
 
-        foreach (Vector2Int cell in path)
+        for (int i = 0; i < path.Count; i++)
         {
-            ShowPreviewSingle(wallSegmentData, cell, Vector2Int.up); 
+            Vector2Int currentCell = path[i];
+            // Importante: El muro debe mirar hacia el siguiente punto (el siguiente en la lista o el final)
+            Vector2Int nextPoint = (i < path.Count - 1) ? path[i + 1] : end;
+            Vector2Int direction = nextPoint - currentCell;
+
+            ShowPreviewSingle(wallSegmentData, currentCell, direction); 
         }
+
+        ShowPreviewSingle(wallTowerData, end, Vector2Int.zero); // Torre final
     }
 
     void ShowPreviewSingle(BuildingData data, Vector2Int pos, Vector2Int direction)
     {
         bool isWall = data == wallSegmentData;
-        bool shouldRotate = isWall && direction.x != 0;
-        Vector2Int size = shouldRotate ? new Vector2Int(data.size.y, data.size.x) : data.size;
+        float finalRotation = 0f;
+
+        if (isWall && direction != Vector2Int.zero)
+        {
+            float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+            finalRotation = angle;
+        }
+
+        Vector2Int size = data.size; 
         Vector2Int origin = pos;
 
         GameObject preview = Instantiate(buildingContainerPrefab, buildingsContainer);
@@ -495,7 +523,9 @@ public class BuildingManager : MonoBehaviour
         Vector3 centerOffset = new Vector3(size.x * cellSize / 2f, 0, size.y * cellSize / 2f);
         
         preview.transform.position = worldPos + centerOffset;
-        preview.transform.rotation = shouldRotate ? Quaternion.Euler(0, 90, 0) : Quaternion.identity;
+        
+        // Aplicamos la rotación exacta
+        preview.transform.rotation = Quaternion.Euler(0, finalRotation, 0);
         
         currentBuilding = data;
         b.SetBuildValid(CanPlaceDoorHere(origin, size));

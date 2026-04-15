@@ -16,13 +16,13 @@ MonoBehaviour:
   icon: {fileID: 0}
   size: {x: 1, y: 1}
   resourceType: 3
-  dustRadius: 2
+  dustRadius: 1
   levels:
-  - level: 0
+  - level: 1
     woodCost: 0
     stoneCost: 0
     goldCost: 0
-    buildTime: 0
+    buildTime: 6
     productionAmount: 0
     modelPrefab: {fileID: 7916659319704481385, guid: 4afb4c8b2f08de74da9906718ba4dbf4, type: 3}
   canBuildColor: {r: 1, g: 1, b: 1, a: 1}

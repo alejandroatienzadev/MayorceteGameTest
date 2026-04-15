@@ -1,47 +1,42 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GridCellHighlight : MonoBehaviour
 {
     public GridManager gridManager;
-
     public GameObject cellPrefab;
 
     [SerializeField] private Material occupiedMat;
     [SerializeField] private Material nonOccupiedMat;
 
-    GameObject[,] cells;
-
-    Renderer[,] renderers;
+    // Usamos un Diccionario para acceder rápido a la celda visual mediante su posición en el grid
+    private Dictionary<Vector2Int, GameObject> cellObjects = new Dictionary<Vector2Int, GameObject>();
+    private Dictionary<Vector2Int, Renderer> cellRenderers = new Dictionary<Vector2Int, Renderer>();
 
     void Start()
     {
-        CreateCells();
-
-        // ocultar al iniciar
+        // Ya no creamos nada aquí
         SetVisible(false);
     }
 
-    void CreateCells()
+    // Este método lo llamará cada BuildZone
+    public void CreateCellsForZone(Vector2Int origin, Vector2Int size)
     {
-        int width = gridManager.gridWidth;
-        int height = gridManager.gridHeight;
-
-        cells = new GameObject[width, height];
-        renderers = new Renderer[width, height];
-
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < size.x; x++)
         {
-            for (int z = 0; z < height; z++)
+            for (int z = 0; z < size.y; z++)
             {
+                Vector2Int pos = new Vector2Int(origin.x + x, origin.y + z);
+
+                // Si ya existe la celda visual por otra zona solapada, no la creamos
+                if (cellObjects.ContainsKey(pos)) continue;
+
                 GameObject cell = Instantiate(cellPrefab, transform);
+                cell.transform.position = gridManager.GetCellCenter(pos.x, pos.y);
+                cell.transform.localScale = new Vector3(gridManager.cellSize, 0.02f, gridManager.cellSize);
 
-                cell.transform.position = gridManager.GetCellCenter(x, z);
-
-                cell.transform.localScale =
-                    new Vector3(gridManager.cellSize, 0.02f, gridManager.cellSize);
-
-                cells[x, z] = cell;
-                renderers[x, z] = cell.GetComponentInChildren<Renderer>();
+                cellObjects.Add(pos, cell);
+                cellRenderers.Add(pos, cell.GetComponentInChildren<Renderer>());
             }
         }
     }
@@ -51,55 +46,13 @@ public class GridCellHighlight : MonoBehaviour
         gameObject.SetActive(visible);
     }
 
-    void Update()
-    {
-        if (!gameObject.activeSelf) return;
-
-        UpdateCellColors();
-    }
-
-    void UpdateCellColors()
-    {
-        int width = gridManager.gridWidth;
-        int height = gridManager.gridHeight;
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < height; z++)
-            {
-                GridCell cell = gridManager.GetCell(x, z);
-
-                if (cell == null) continue;
-
-                Renderer r = renderers[x, z];
-
-                if (!cell.buildable)
-                {
-                    r.enabled = false;
-                    continue;
-                }
-
-                r.enabled = true;
-
-                if (cell.occupied)
-                    r.material = occupiedMat;
-                else
-                    r.material = nonOccupiedMat;
-            }
-        }
-    }
-
+    // Limpia los colores volviendo al estado original (transparente/suave)
     void ClearColors()
-    {   
-        for (int x = 0; x < gridManager.gridWidth; x++)
+    {
+        foreach (var renderer in cellRenderers.Values)
         {
-            for (int z = 0; z < gridManager.gridHeight; z++)
-            {
-                Renderer r = cells[x, z].GetComponentInChildren<Renderer>();
-
-                if (r != null)
-                    r.material.color = new Color(0, 0, 0, 0.15f);
-            }
+            if (renderer != null)
+                renderer.material.color = new Color(1, 1, 1, 0.15f); // Color neutro
         }
     }
 
@@ -111,19 +64,13 @@ public class GridCellHighlight : MonoBehaviour
         {
             for (int z = 0; z < size.y; z++)
             {
-                int cellX = origin.x + x;
-                int cellZ = origin.y + z;
+                Vector2Int pos = new Vector2Int(origin.x + x, origin.y + z);
 
-                if (cellX < 0 || cellX >= gridManager.gridWidth ||
-                    cellZ < 0 || cellZ >= gridManager.gridHeight)
-                    continue;
-
-                bool buildable = gridManager.IsCellBuildable(cellX, cellZ);
-
-                Renderer r = cells[cellX, cellZ].GetComponentInChildren<Renderer>();
-
-                if (r != null)
-                    r.material.color = buildable ? Color.blue : Color.red;
+                if (cellRenderers.ContainsKey(pos))
+                {
+                    bool buildable = gridManager.IsCellBuildable(pos.x, pos.y);
+                    cellRenderers[pos].material.color = buildable ? Color.blue : Color.red;
+                }
             }
         }
     }
